@@ -1,18 +1,32 @@
 import React from "react";
 import styled, { css } from "styled-components";
 import TextField from "@material-ui/core/TextField";
-import Join from "./Join";
 
-class Login extends React.Component {
+class Join extends React.Component {
   render() {
     return (
       <Div>
         <MainDiv>
-          <LoginDiv>
+          <JoinDiv>
             <Span color="Title">Insta_Clone</Span>
+            <Span color="SubTitle">
+              친구들의 사진과 동영상을 보려면 가입하세요.
+            </Span>
             <TextField
               variant="outlined"
-              label="사용자 계정 또는 이메일"
+              label="이메일 주소"
+              type="text"
+              name="Email"
+            />
+            <TextField
+              variant="outlined"
+              label="성명"
+              type="text"
+              name="Name"
+            />
+            <TextField
+              variant="outlined"
+              label="사용자 계정"
               type="text"
               name="Account"
             />
@@ -23,15 +37,15 @@ class Login extends React.Component {
               name="Password"
             />
             <Button>
-              <Span color="LoginButton">로그인</Span>
+              <Span color="JoinButton">가입</Span>
             </Button>
-          </LoginDiv>
-          <JoinDiv>
-            <Span color="JoinNotice">계정이 없으신가요?</Span>
-            <A>
-              <Span color="Join">가입하기</Span>
-            </A>
           </JoinDiv>
+          <LoginDiv>
+            <Span color="LoginNotice">계정이 있으신가요?</Span>
+            <A onClick={this.props.showLogin}>
+              <Span color="Login">로그인</Span>
+            </A>
+          </LoginDiv>
         </MainDiv>
         <Footer>
           <Span color="Footer">© 2019 INSTA_CLONE</Span>
@@ -45,6 +59,7 @@ class Login extends React.Component {
 const A = styled.a`
   text-decoration: none;
   margin-left: 20px;
+  cursor: pointer;
 `;
 
 const Button = styled.button`
@@ -63,7 +78,7 @@ const Span = styled.span`
         font-size: 45px;
         font-weight: 700;
       `;
-    } else if (props.color === "JoinNotice") {
+    } else if (props.color === "LoginNotice") {
       return css`
         color: #555555;
         font-weight: 600;
@@ -73,15 +88,24 @@ const Span = styled.span`
         color: #1e4d7b;
         font-weight: 600;
       `;
-    } else if (props.color === "LoginButton") {
+    } else if (props.color === "JoinButton") {
       return css`
         color: white;
         font-weight: 600;
       `;
-    } else if (props.color === "Join") {
+    } else if (props.color === "Login") {
       return css`
         color: rgba(56, 151, 240);
         font-weight: 700;
+      `;
+    } else if (props.color === "SubTitle") {
+      return css`
+        color: #a6a6a6;
+        font-weight: 600;
+        font-size: 20px;
+        text-align: center;
+        margin-left: 20px;
+        margin-right: 20px;
       `;
     }
   }}
@@ -106,8 +130,8 @@ const MainDiv = styled.div`
   align-items: center;
 `;
 
-const LoginDiv = styled.div`
-  height: 380px;
+const JoinDiv = styled.div`
+  height: 560px;
   width: 350px;
   background-color: #fff;
   border: 1px solid #e6e6e6;
@@ -118,7 +142,7 @@ const LoginDiv = styled.div`
   align-items: center;
 `;
 
-const JoinDiv = styled.div`
+const LoginDiv = styled.div`
   height: 60px;
   width: 350px;
   background-color: #fff;
@@ -140,4 +164,4 @@ const Footer = styled.div`
   align-items: center;
 `;
 
-export default Login;
+export default Join;
