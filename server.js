@@ -21,8 +21,43 @@ const connection = mysql.createConnection({
 
 connection.connect();
 
-app.get("/api/user", (req, res) => {
-  connection.query("SELECT * FROM USER", (err, rows, fields) => {
+app.get("/api/allContents", (req, res) => {
+  connection.query(
+    "SELECT contentID, CONTENTS.email, contentImg, content, contentDate, nickname, profileImg FROM CONTENTS, USER WHERE CONTENTS.email = USER.email",
+    (err, rows, fields) => {
+      res.send(rows);
+    }
+  );
+});
+
+app.post("/api/deleteUser", (req, res) => {
+  let sql = "DELETE FROM USER WHERE email = ? and password = ?";
+
+  let email = req.body.email;
+  let password = req.body.password;
+  let params = [email, password];
+  connection.query(sql, params, (err, rows, fields) => {
+    res.send(err);
+  });
+});
+
+app.post("/api/search", (req, res) => {
+  let sql =
+    "SELECT contentID, CONTENTS.email, contentImg, content, contentDate, nickname, profileImg FROM CONTENTS, USER WHERE CONTENTS.email = USER.email AND (nickname LIKE ? OR content LIKE ?)";
+
+  let value = req.body.value;
+  let params = [value, value];
+  connection.query(sql, params, (err, rows, fields) => {
+    res.send(rows);
+  });
+});
+
+app.post("/api/contents", (req, res) => {
+  let sql = "SELECT * FROM CONTENTS WHERE email = ?";
+
+  let email = req.body.email;
+  let params = [email];
+  connection.query(sql, params, (err, rows, fields) => {
     res.send(rows);
   });
 });
@@ -35,6 +70,19 @@ app.post("/api/login", (req, res) => {
   let params = [email, password];
   connection.query(sql, params, (err, rows, fields) => {
     res.send(rows);
+  });
+});
+
+app.post("/api/join", (req, res) => {
+  let sql = "INSERT INTO USER VALUES (?, ?, ?, ?, null, null)";
+
+  let email = req.body.email;
+  let name = req.body.name;
+  let nickname = req.body.nickname;
+  let password = req.body.password;
+  let params = [email, name, nickname, password];
+  connection.query(sql, params, (err, rows, fields) => {
+    res.send(err);
   });
 });
 

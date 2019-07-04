@@ -2,6 +2,11 @@
 
 const SHOW_JOIN = "SHOW_JOIN";
 const SHOW_LOGIN = "SHOW_LOGIN";
+const SHOW_APPBAR = "SHOW_APPBAR";
+const SHOW_HOME = "SHOW_HOME";
+const SHOW_USER = "SHOW_USER";
+const LOGOUT_ACTION = "LOGOUT_ACTION";
+const SET_CONTENTS = "SET_CONTENTS";
 
 // Action Creators
 
@@ -17,10 +22,52 @@ function showLogin() {
   };
 }
 
+function showAppbar(account) {
+  return {
+    type: SHOW_APPBAR,
+    account: account
+  };
+}
+
+function showHome() {
+  return {
+    type: SHOW_HOME
+  };
+}
+
+function showUser() {
+  return {
+    type: SHOW_USER
+  };
+}
+
+function logoutAction() {
+  return {
+    type: LOGOUT_ACTION
+  };
+}
+
+function setContents(contents) {
+  return {
+    type: SET_CONTENTS,
+    contents: contents
+  };
+}
+
 // Reducer
 
 const initialState = {
-  what: "default"
+  what: "default",
+  account: {
+    email: "",
+    name: "",
+    nickname: "",
+    password: "",
+    title: "",
+    profileImg: ""
+  },
+  contents: [],
+  homeOrUser: "default"
 };
 
 function reducer(state = initialState, action) {
@@ -29,6 +76,16 @@ function reducer(state = initialState, action) {
       return applyShowJoin(state);
     case SHOW_LOGIN:
       return applyShowLogin(state);
+    case SHOW_APPBAR:
+      return applyShowAppbar(state, action.account);
+    case LOGOUT_ACTION:
+      return applyLogoutAction(state);
+    case SHOW_HOME:
+      return applyShowHome(state);
+    case SHOW_USER:
+      return applyShowUser(state);
+    case SET_CONTENTS:
+      return applySetContents(state, action.contents);
     default:
       return state;
   }
@@ -37,28 +94,80 @@ function reducer(state = initialState, action) {
 // Reducer Functions
 
 function applyShowJoin(state) {
-  if (state.what === "default") {
+  return {
+    ...state,
+    what: "join"
+  };
+}
+
+function applyShowLogin(state) {
+  return {
+    ...state,
+    what: "default"
+  };
+}
+
+function applyShowAppbar(state, account) {
+  return {
+    ...state,
+    what: "login",
+    account: account
+  };
+}
+
+function applyShowHome(state) {
+  if (state.homeOrUser === "user") {
     return {
       ...state,
-      what: "join"
+      contents: [],
+      homeOrUser: "default"
     };
   }
 }
 
-function applyShowLogin(state) {
-  if (state.what === "join") {
+function applyShowUser(state) {
+  if (state.homeOrUser === "default") {
     return {
       ...state,
-      what: "default"
+      contents: [],
+      homeOrUser: "user"
     };
   }
+}
+
+function applyLogoutAction(state) {
+  return {
+    ...state,
+    what: "default",
+    account: {
+      email: "",
+      name: "",
+      nickname: "",
+      password: "",
+      title: "",
+      profileImg: ""
+    },
+    homeOrUser: "default"
+  };
+}
+
+function applySetContents(state, contents) {
+  return {
+    ...state,
+    contents: contents
+  };
 }
 
 // export Action Creators
 
 const actionCreators = {
   showJoin,
-  showLogin
+  showLogin,
+  showAppbar,
+  showHome,
+  showUser,
+  logoutAction,
+  setContents
 };
 
 export { actionCreators };

@@ -1,17 +1,38 @@
 import React from "react";
 import Login from "./Login";
 import Join from "./Join";
-import Home from "./Home";
+import Appbar from "./Appbar";
 
 export default class Which extends React.Component {
   render() {
-    const { what, showJoin, showLogin } = this.props;
+    const {
+      what,
+      account,
+      contents,
+      homeOrUser,
+      showJoin,
+      showLogin,
+      showAppbar,
+      showHome,
+      showUser,
+      logoutAction,
+      setContents
+    } = this.props;
     return what === "login" ? (
-      <Home />
+      <Appbar
+        account={account}
+        logoutAction={logoutAction}
+        contents={contents}
+        showHome={showHome}
+        showUser={showUser}
+        homeOrUser={homeOrUser}
+        setContents={setContents}
+        showLogin={showLogin}
+      />
     ) : what === "join" ? (
       <Join showLogin={showLogin} />
     ) : (
-      <Login showJoin={showJoin} />
+      <Login showJoin={showJoin} showAppbar={showAppbar} />
     );
   }
 }

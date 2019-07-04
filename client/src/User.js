@@ -1,46 +1,22 @@
 import React, { Fragment } from "react";
 import styled, { css } from "styled-components";
-import InputBase from "@material-ui/core/InputBase";
-import SearchIcon from "@material-ui/icons/Search";
-import { fade, withStyles } from "@material-ui/core/styles";
+import { post } from "axios";
+import { withStyles } from "@material-ui/core/styles";
+import Dialog from "@material-ui/core/Dialog";
+import DialogTitle from "@material-ui/core/DialogTitle";
+import DialogActions from "@material-ui/core/DialogActions";
+import Button from "@material-ui/core/Button";
 
 const styles = theme => ({
-  search: {
-    position: "relative",
-    borderRadius: theme.shape.borderRadius,
-    backgroundColor: fade(theme.palette.common.white, 0.15),
-    "&:hover": {
-      backgroundColor: fade(theme.palette.common.white, 0.25)
-    },
-    marginLeft: 0,
-    width: "100%",
-    [theme.breakpoints.up("sm")]: {
-      marginLeft: theme.spacing(1),
-      width: "auto"
-    }
-  },
-  searchIcon: {
-    width: theme.spacing(7),
-    height: "100%",
-    position: "absolute",
-    pointerEvents: "none",
+  center: {
     display: "flex",
-    alignItems: "center",
-    justifyContent: "center"
+    justifyContent: "center",
+    alignItems: "center"
   },
-  inputRoot: {
-    color: "inherit"
-  },
-  inputInput: {
-    padding: theme.spacing(1, 1, 1, 7),
-    transition: theme.transitions.create("width"),
-    width: "100%",
-    [theme.breakpoints.up("sm")]: {
-      width: 120,
-      "&:focus": {
-        width: 200
-      }
-    }
+  between: {
+    display: "flex",
+    justifyContent: "space-around",
+    alignItems: "center"
   }
 });
 
@@ -51,245 +27,193 @@ class User extends React.Component {
     year: "",
     month: "",
     day: "",
-    hour: ""
+    hour: "",
+    contentImg: "",
+    profileImg: "",
+    nickname: "",
+    content: "",
+    contentDate: "",
+    delete: false
   };
 
-  handleClickOpen = () => {
+  getContents = () => {
+    this.callApi()
+      .then(res => {
+        this.props.setContents(res.data);
+      })
+      .catch(err => console.log("err : " + err));
+  };
+
+  callApi = async () => {
+    const url = "/api/contents";
+    const data = {
+      email: this.props.account.email
+    };
+    return post(url, data);
+  };
+
+  handleClickOpen = (
+    contentImg,
+    profileImg,
+    nickname,
+    content,
+    contentDate
+  ) => {
     this.setState({
-      open: "flex"
+      open: "flex",
+      contentImg: contentImg,
+      profileImg: profileImg,
+      nickname: nickname,
+      content: content,
+      contentDate: contentDate
     });
   };
 
   handleClickClose = () => {
     this.setState({
-      open: "none"
+      open: "none",
+      contentImg: "",
+      profileImg: "",
+      nickname: "",
+      content: "",
+      contentDate: ""
     });
   };
+
+  showDialog = () => {
+    this.setState({
+      delete: true
+    });
+  };
+
+  closeDialog = () => {
+    this.setState({
+      delete: false
+    });
+  };
+
+  componentWillMount() {
+    this.getContents();
+  }
+
   render() {
     const { classes } = this.props;
     return (
       <Fragment>
-        <NavigationDiv>
-          <NavigationContentDiv>
-            <Left>
-              <Button>
-                <img src={require("./images/insta.png")} alt="home_button" />
-              </Button>
-              <Vl />
-              <Span kind="home">InstaClone</Span>
-            </Left>
-
-            <div className={classes.search}>
-              <div className={classes.searchIcon}>
-                <SearchIcon />
-              </div>
-              <InputBase
-                placeholder="검색"
-                classes={{
-                  root: classes.inputRoot,
-                  input: classes.inputInput
-                }}
-                inputProps={{ "aria-label": "Search" }}
-              />
-            </div>
-            <Button>
-              <img src={require("./images/user.png")} alt="user_button" />
-            </Button>
-          </NavigationContentDiv>
-        </NavigationDiv>
         <Div>
           <Main>
+            <ProfileBackDiv>
+              <ProfileBackImg
+                src={require("./images/profileBackground.png")}
+                alt="profile_backImg"
+              />
+            </ProfileBackDiv>
             <ProfileDiv>
               <ProfileImgDiv>
-                <ProfileImg
-                  src={require("./images/profile.png")}
-                  alt="profile_img"
-                />
+                {this.props.account.profileImg ? (
+                  <ProfileImg
+                    src={require("./images/profile.png")}
+                    alt="profile_img"
+                  />
+                ) : (
+                  <ProfileImg
+                    src={require("./images/profile.png")}
+                    alt="profile_img"
+                  />
+                )}
               </ProfileImgDiv>
               <ProfileInfoDiv>
-                <Span kind="account">Parkhyoshin_official</Span>
-                <Span kind="title">LOVERS2019_PARK HYO SHIN</Span>
-                <Span kind="nickname">박효신</Span>
-                <A href="www.lovers2019.com" target="_blank">
-                  <Span kind="link">WWW.LOVERS2019.COM</Span>
-                </A>
+                <Span kind="account">{this.props.account.nickname}</Span>
+                <Span kind="name">{this.props.account.name}</Span>
               </ProfileInfoDiv>
             </ProfileDiv>
             <Hr />
             <ContentDiv>
-              <RowDiv>
-                <ImageDiv>
-                  <Button onClick={this.handleClickOpen}>
-                    <Image src={require("./images/first.png")} alt="first" />
-                  </Button>
-                </ImageDiv>
-              </RowDiv>
+              {this.props.contents.length !== 0
+                ? this.props.contents.map(c => {
+                    return (
+                      <ImageDiv>
+                        <StyledButton onClick={this.showDialog} what="delete">
+                          <img
+                            src={require("./images/delete.png")}
+                            alt="delete_button"
+                          />
+                        </StyledButton>
+                        <StyledButton
+                          onClick={() =>
+                            this.handleClickOpen(
+                              c.contentImg,
+                              c.profileImg,
+                              c.nickname,
+                              c.content,
+                              c.contentDate
+                            )
+                          }
+                        >
+                          {c.contentImg ? (
+                            <Image
+                              src={require("./images/first.png")}
+                              alt="first"
+                            />
+                          ) : (
+                            <Image
+                              src={require("./images/basic.png")}
+                              alt="first"
+                            />
+                          )}
+                        </StyledButton>
+                      </ImageDiv>
+                    );
+                  })
+                : ""}
             </ContentDiv>
           </Main>
         </Div>
 
-        <Dialog display={this.state.open}>
+        <StyledDialog display={this.state.open}>
           <CloseButton onClick={this.handleClickClose}>
             <img src={require("./images/close.png")} alt="close" />
           </CloseButton>
           <DialogDiv>
             <DialogImgDiv>
-              <DialogImg src={require("./images/first.png")} alt="img" />
+              {this.state.contentImg ? (
+                <DialogImg src={require("./images/first.png")} alt="first" />
+              ) : (
+                <DialogImg src={require("./images/basic.png")} alt="first" />
+              )}
             </DialogImgDiv>
             <DialogContentDiv>
               <DialogContentUpperDiv>
-                <ProfileImgDiv size="small">
-                  <ProfileImg
-                    size="small"
-                    src={require("./images/profile.png")}
-                    alt="img"
-                  />
-                </ProfileImgDiv>
-                <ProfileInfoDiv size="small">
-                  <Span size="small">Parkhyoshin_official</Span>
-                </ProfileInfoDiv>
+                <UpperAccountDiv>
+                  <ProfileImgDiv size="small">
+                    {this.state.profileImg ? (
+                      <ProfileImg
+                        size="small"
+                        src={require("./images/profile.png")}
+                        alt="profile_img"
+                      />
+                    ) : (
+                      <ProfileImg
+                        size="small"
+                        src={require("./images/default.png")}
+                        alt="profile_img"
+                      />
+                    )}
+                  </ProfileImgDiv>
+                  <ProfileInfoDiv size="small">
+                    <Span size="small">{this.props.account.nickname}</Span>
+                  </ProfileInfoDiv>
+                </UpperAccountDiv>
+                <UpperContentDiv>
+                  <ContentsDiv>
+                    <Span size="reply">{this.state.content}</Span>
+                  </ContentsDiv>
+                  <DateDiv>
+                    <Span size="replyDate">{this.state.contentDate}</Span>
+                  </DateDiv>
+                </UpperContentDiv>
               </DialogContentUpperDiv>
               <DialogContentMidDiv>
-                <ReplyContainer>
-                  <ProfileImgDiv size="small">
-                    <ProfileImg
-                      size="small"
-                      src={require("./images/first.png")}
-                      alt="img"
-                    />
-                  </ProfileImgDiv>
-                  <ReplyDiv>
-                    <Span size="replyID">dudumi</Span>
-                    <Span size="reply">사진 맘에 들어요</Span>
-                    <Span size="replyDate">
-                      {`${this.state.date.getFullYear()}년 
-                    ${this.state.date.getMonth() + 1}월
-                    ${this.state.date.getDay()}일
-                    ${this.state.date.getHours()}시
-                    `}
-                    </Span>
-                  </ReplyDiv>
-                </ReplyContainer>
-                <ReplyContainer>
-                  <ProfileImgDiv size="small">
-                    <ProfileImg
-                      size="small"
-                      src={require("./images/first.png")}
-                      alt="img"
-                    />
-                  </ProfileImgDiv>
-                  <ReplyDiv>
-                    <Span size="replyID">dudumi</Span>
-                    <Span size="reply">사진 맘에 들어요</Span>
-                    <Span size="replyDate">
-                      {`${this.state.date.getFullYear()}년 
-                    ${this.state.date.getMonth() + 1}월
-                    ${this.state.date.getDay()}일
-                    ${this.state.date.getHours()}시
-                    `}
-                    </Span>
-                  </ReplyDiv>
-                </ReplyContainer>
-                <ReplyContainer>
-                  <ProfileImgDiv size="small">
-                    <ProfileImg
-                      size="small"
-                      src={require("./images/first.png")}
-                      alt="img"
-                    />
-                  </ProfileImgDiv>
-                  <ReplyDiv>
-                    <Span size="replyID">dudumi</Span>
-                    <Span size="reply">사진 맘에 들어요</Span>
-                    <Span size="replyDate">
-                      {`${this.state.date.getFullYear()}년 
-                    ${this.state.date.getMonth() + 1}월
-                    ${this.state.date.getDay()}일
-                    ${this.state.date.getHours()}시
-                    `}
-                    </Span>
-                  </ReplyDiv>
-                </ReplyContainer>
-                <ReplyContainer>
-                  <ProfileImgDiv size="small">
-                    <ProfileImg
-                      size="small"
-                      src={require("./images/first.png")}
-                      alt="img"
-                    />
-                  </ProfileImgDiv>
-                  <ReplyDiv>
-                    <Span size="replyID">dudumi</Span>
-                    <Span size="reply">사진 맘에 들어요</Span>
-                    <Span size="replyDate">
-                      {`${this.state.date.getFullYear()}년 
-                    ${this.state.date.getMonth() + 1}월
-                    ${this.state.date.getDay()}일
-                    ${this.state.date.getHours()}시
-                    `}
-                    </Span>
-                  </ReplyDiv>
-                </ReplyContainer>
-                <ReplyContainer>
-                  <ProfileImgDiv size="small">
-                    <ProfileImg
-                      size="small"
-                      src={require("./images/first.png")}
-                      alt="img"
-                    />
-                  </ProfileImgDiv>
-                  <ReplyDiv>
-                    <Span size="replyID">dudumi</Span>
-                    <Span size="reply">사진 맘에 들어요</Span>
-                    <Span size="replyDate">
-                      {`${this.state.date.getFullYear()}년 
-                    ${this.state.date.getMonth() + 1}월
-                    ${this.state.date.getDay()}일
-                    ${this.state.date.getHours()}시
-                    `}
-                    </Span>
-                  </ReplyDiv>
-                </ReplyContainer>
-                <ReplyContainer>
-                  <ProfileImgDiv size="small">
-                    <ProfileImg
-                      size="small"
-                      src={require("./images/first.png")}
-                      alt="img"
-                    />
-                  </ProfileImgDiv>
-                  <ReplyDiv>
-                    <Span size="replyID">dudumi</Span>
-                    <Span size="reply">사진 맘에 들어요</Span>
-                    <Span size="replyDate">
-                      {`${this.state.date.getFullYear()}년 
-                    ${this.state.date.getMonth() + 1}월
-                    ${this.state.date.getDay()}일
-                    ${this.state.date.getHours()}시
-                    `}
-                    </Span>
-                  </ReplyDiv>
-                </ReplyContainer>
-                <ReplyContainer>
-                  <ProfileImgDiv size="small">
-                    <ProfileImg
-                      size="small"
-                      src={require("./images/first.png")}
-                      alt="img"
-                    />
-                  </ProfileImgDiv>
-                  <ReplyDiv>
-                    <Span size="replyID">dudumi</Span>
-                    <Span size="reply">사진 맘에 들어요</Span>
-                    <Span size="replyDate">
-                      {`${this.state.date.getFullYear()}년 
-                    ${this.state.date.getMonth() + 1}월
-                    ${this.state.date.getDay()}일
-                    ${this.state.date.getHours()}시
-                    `}
-                    </Span>
-                  </ReplyDiv>
-                </ReplyContainer>
                 <ReplyContainer>
                   <ProfileImgDiv size="small">
                     <ProfileImg
@@ -320,6 +244,27 @@ class User extends React.Component {
               </DialogContentLowerDiv>
             </DialogContentDiv>
           </DialogDiv>
+        </StyledDialog>
+        <Dialog open={this.state.delete}>
+          <DialogTitle className={classes.center}>
+            게시물을 삭제하시겠습니까?
+          </DialogTitle>
+          <DialogActions className={classes.between}>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={this.deleteContent}
+            >
+              삭제
+            </Button>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={this.closeDialog}
+            >
+              취소
+            </Button>
+          </DialogActions>
         </Dialog>
       </Fragment>
     );
@@ -331,8 +276,8 @@ const ReplyContainer = styled.div`
   display: flex;
   padding: 10px;
   align-items: center;
-  margin-top: 30px;
-  margin-bottom: 30px;
+  margin-top: 25px;
+  margin-bottom: 25px;
 `;
 
 const ReplyDiv = styled.div`
@@ -343,7 +288,7 @@ const ReplyDiv = styled.div`
   align-items: flex-start;
 `;
 
-const Dialog = styled.div`
+const StyledDialog = styled.div`
   z-index: 1;
   position: absolute;
   top: 0;
@@ -369,6 +314,9 @@ const CloseButton = styled.button`
   position: absolute;
   top: 20px;
   right: 20px;
+  &:focus {
+    outline: none;
+  }
 `;
 
 const DialogDiv = styled.div`
@@ -383,6 +331,7 @@ const DialogImgDiv = styled.div`
   width: 64%;
   height: auto;
   max-width: 600px;
+  background-color: #000000;
 `;
 
 const DialogImg = styled.img`
@@ -392,7 +341,9 @@ const DialogImg = styled.img`
 
 const DialogContentDiv = styled.div`
   width: 36%;
-  max-width: 600px;
+  height: auto;
+  max-width: 335px;
+  max-height: 600px;
   background-color: white;
   display: flex;
   flex-direction: column;
@@ -402,14 +353,46 @@ const DialogContentDiv = styled.div`
 
 const DialogContentUpperDiv = styled.div`
   width: 100%;
-  height: 15%;
+  height: 30%;
+  display: flex;
+  flex-direction: column;
+  border-bottom: 1px solid rgba(230, 230, 230);
+`;
+
+const UpperAccountDiv = styled.div`
+  width: 100%;
+  height: 50%;
   display: flex;
   border-bottom: 1px solid rgba(230, 230, 230);
 `;
 
+const UpperContentDiv = styled.div`
+  width: 100%;
+  height: 50%;
+  display: flex;
+  flex-direction: column;
+`;
+
+const ContentsDiv = styled.div`
+  width: 97%;
+  height: 64%;
+  padding: 5px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
+
+const DateDiv = styled.div`
+  width: 100%;
+  height: 15%;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+`;
+
 const DialogContentMidDiv = styled.div`
   width: 100%;
-  height: 75%;
+  height: 60%;
   background-color: #fafafa;
   display: flex;
   flex-direction: column;
@@ -437,40 +420,22 @@ const Input = styled.input`
   }
 `;
 
-const Left = styled.div`
-  display: flex;
-`;
-
-const NavigationDiv = styled.div`
-  width: 100%;
-  height: 70px;
-  background-color: #ffffff;
-  display: flex;
-  justify-content: center;
-  border-bottom: 1px solid rgba(230, 230, 230);
-`;
-
-const NavigationContentDiv = styled.div`
-  width: 950px;
-  height: 70px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-`;
-
-const Button = styled.button`
+const StyledButton = styled.button`
   border: none;
   background-color: transparent;
   cursor: pointer;
-`;
-
-const Vl = styled.div`
-  display: block;
-  width: 1px;
-  background-color: #000;
-  height: 32px;
-  margin-left: 14px;
-  margin-right: 14px;
+  &:focus {
+    outline: none;
+  }
+  ${props => {
+    if (props.what === "delete") {
+      return css`
+        position: absolute;
+        margin-top: 34px;
+        margin-left: 253px;
+      `;
+    }
+  }}
 `;
 
 const Div = styled.div`
@@ -491,23 +456,36 @@ const Main = styled.div`
   background-color: #fafafa;
 `;
 
-const ProfileDiv = styled.div`
-  height: auto;
+const ProfileBackDiv = styled.div`
+  height: 400px;
   width: 100%;
+`;
+
+const ProfileBackImg = styled.img`
+  width: 100%;
+  height: 100%;
+`;
+
+const ProfileDiv = styled.div`
+  margin-top: -400px;
   display: flex;
-  margin-top: 30px;
-  margin-bottom: 30px;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 400px;
 `;
 
 const ProfileImgDiv = styled.div`
-  width: 34%;
-  height: 200px;
+  width: 100%;
+  height: 65%;
   display: flex;
   justify-content: center;
   align-items: center;
   ${props => {
     if (props.size === "small") {
       return css`
+        width: 36%;
         height: 100%;
       `;
     }
@@ -515,9 +493,10 @@ const ProfileImgDiv = styled.div`
 `;
 
 const ProfileImg = styled.img`
-  width: 150px;
-  height: 150px;
+  width: 190px;
+  height: 190px;
   border-radius: 50%;
+  border: 7px solid white;
   ${props => {
     if (props.size === "small") {
       return css`
@@ -529,15 +508,16 @@ const ProfileImg = styled.img`
 `;
 
 const ProfileInfoDiv = styled.div`
-  width: 66%;
-  height: 200px;
-  margin-left: 30px;
+  width: 100%;
+  height: 35%;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-start;
+  align-items: center;
   ${props => {
     if (props.size === "small") {
       return css`
+        width: 64%;
         height: 100%;
         flex-direction: row;
         align-items: center;
@@ -551,34 +531,24 @@ const Span = styled.div`
   ${props => {
     if (props.kind === "account") {
       return css`
-        font-weight: 300;
-        color: rgba(38, 38, 38);
-        font-size: 28px;
+        font-weight: 700;
+        color: white;
+        font-size: 46px;
+        margin-bottom: 15px;
         text-overflow: ellipsis;
       `;
     } else if (props.kind === "title") {
       return css`
         font-weight: 600;
-        font-size: 16px;
-        margin-top: 35px;
+        font-size: 20x;
+        margin-top: 30px;
       `;
-    } else if (props.kind === "nickname") {
+    } else if (props.kind === "name") {
       return css`
         font-weight: 400;
-        font-size: 16px;
+        font-size: 24px;
+        color: white;
         margin-top: 3px;
-      `;
-    } else if (props.kind === "link") {
-      return css`
-        font-weight: 700;
-        font-size: 16px;
-        margin-top: 3px;
-        color: #365f88;
-      `;
-    } else if (props.kind === "home") {
-      return css`
-        font-weight: 700;
-        font-size: 20px;
       `;
     } else if (props.size === "small") {
       return css`
@@ -605,10 +575,6 @@ const Span = styled.div`
   }}
 `;
 
-const A = styled.a`
-  text-decoration: none;
-`;
-
 const Hr = styled.hr`
   width: 98%;
   max-width: 950px;
@@ -618,14 +584,9 @@ const ContentDiv = styled.div`
   width: 100%;
   background-color: #fafafa;
   display: flex;
-  flex-direction: column;
   justify-content: flex-start;
-`;
-
-const RowDiv = styled.div`
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 20px;
+  align-items: flex-start;
+  flex-wrap: wrap;
 `;
 
 const ImageDiv = styled.div`

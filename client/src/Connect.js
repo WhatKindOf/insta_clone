@@ -4,16 +4,24 @@ import { actionCreators } from "./reducer";
 import Which from "./Which";
 
 function mapStateToProps(state) {
-  const { what } = state;
+  const { what, account, contents, homeOrUser } = state;
   return {
-    what
+    what,
+    account,
+    contents,
+    homeOrUser
   };
 }
 
 function mapDispatchToProps(dispatch) {
   return {
     showJoin: bindActionCreators(actionCreators.showJoin, dispatch),
-    showLogin: bindActionCreators(actionCreators.showLogin, dispatch)
+    showLogin: bindActionCreators(actionCreators.showLogin, dispatch),
+    showAppbar: bindActionCreators(actionCreators.showAppbar, dispatch),
+    showHome: bindActionCreators(actionCreators.showHome, dispatch),
+    showUser: bindActionCreators(actionCreators.showUser, dispatch),
+    logoutAction: bindActionCreators(actionCreators.logoutAction, dispatch),
+    setContents: bindActionCreators(actionCreators.setContents, dispatch)
   };
 }
 

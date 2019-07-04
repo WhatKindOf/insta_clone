@@ -1,8 +1,52 @@
 import React from "react";
+import { post } from "axios";
 import styled, { css } from "styled-components";
 import TextField from "@material-ui/core/TextField";
 
 class Join extends React.Component {
+  state = {
+    email: "",
+    name: "",
+    nickname: "",
+    password: ""
+  };
+
+  Join = () => {
+    const url = "/api/join";
+    const data = {
+      email: this.state.email,
+      name: this.state.name,
+      nickname: this.state.nickname,
+      password: this.state.password
+    };
+
+    return post(url, data);
+  };
+
+  JoinAction = e => {
+    e.preventDefault();
+    this.Join().then(response => {
+      if (response.data.code === undefined) {
+        this.props.showLogin();
+      } else if (response.data !== null) {
+        console.log(response.data.code);
+        console.log("Error 발생!");
+      }
+    });
+    this.setState({
+      email: "",
+      name: "",
+      nickname: "",
+      password: ""
+    });
+  };
+
+  handleValueChange = e => {
+    let nextState = {};
+    nextState[e.target.name] = e.target.value;
+    this.setState(nextState);
+  };
+
   render() {
     return (
       <Div>
@@ -16,27 +60,35 @@ class Join extends React.Component {
               variant="outlined"
               label="이메일 주소"
               type="text"
-              name="Email"
+              name="email"
+              value={this.state.email}
+              onChange={this.handleValueChange}
             />
             <TextField
               variant="outlined"
               label="성명"
               type="text"
-              name="Name"
+              name="name"
+              value={this.state.name}
+              onChange={this.handleValueChange}
             />
             <TextField
               variant="outlined"
-              label="사용자 계정"
+              label="사용자명"
               type="text"
-              name="Account"
+              name="nickname"
+              value={this.state.nickname}
+              onChange={this.handleValueChange}
             />
             <TextField
               variant="outlined"
               label="비밀번호"
               type="password"
-              name="Password"
+              name="password"
+              value={this.state.password}
+              onChange={this.handleValueChange}
             />
-            <Button>
+            <Button onClick={this.JoinAction}>
               <Span color="JoinButton">가입</Span>
             </Button>
           </JoinDiv>
@@ -104,8 +156,8 @@ const Span = styled.span`
         font-weight: 600;
         font-size: 20px;
         text-align: center;
-        margin-left: 20px;
-        margin-right: 20px;
+        margin-left: 50px;
+        margin-right: 50px;
       `;
     }
   }}

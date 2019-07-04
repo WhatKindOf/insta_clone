@@ -8,7 +8,9 @@ class Login extends React.Component {
     email: "",
     name: "",
     nickname: "",
-    password: ""
+    password: "",
+    title: "",
+    profileImg: ""
   };
 
   login = () => {
@@ -25,31 +27,25 @@ class Login extends React.Component {
     e.preventDefault();
     this.login().then(response => {
       if (JSON.stringify(response.data[0]) === undefined) {
-        console.log("된다고????");
-      }
-      if (JSON.stringify(response.data.length) === "0") {
         console.log("빈 값이다.");
+      } else if (JSON.stringify(response.data.length) === "0") {
+        console.log("빈 값이다.");
+      } else {
+        const account = {
+          email: response.data[0].email,
+          name: response.data[0].name,
+          nickname: response.data[0].nickname,
+          password: response.data[0].password,
+          title: response.data[0].title,
+          profileImg: response.data[0].profileImg
+        };
+        this.props.showAppbar(account);
       }
-      console.log(JSON.stringify(response.data.length));
     });
     this.setState({
       email: "",
       password: ""
     });
-  };
-
-  getUser = () => {
-    this.callApi()
-      .then(res => {
-        console.log(res);
-      })
-      .catch(err => console.log("err : " + err));
-  };
-
-  callApi = async () => {
-    const response = await fetch("/api/user");
-    const body = await response.json();
-    return body;
   };
 
   handleValueChange = e => {

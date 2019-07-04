@@ -1,48 +1,5 @@
 import React, { Fragment } from "react";
 import styled, { css } from "styled-components";
-import InputBase from "@material-ui/core/InputBase";
-import SearchIcon from "@material-ui/icons/Search";
-import { fade, withStyles } from "@material-ui/core/styles";
-
-const styles = theme => ({
-  search: {
-    position: "relative",
-    borderRadius: theme.shape.borderRadius,
-    backgroundColor: fade(theme.palette.common.white, 0.15),
-    "&:hover": {
-      backgroundColor: fade(theme.palette.common.white, 0.25)
-    },
-    marginLeft: 0,
-    width: "100%",
-    [theme.breakpoints.up("sm")]: {
-      marginLeft: theme.spacing(1),
-      width: "auto"
-    }
-  },
-  searchIcon: {
-    width: theme.spacing(7),
-    height: "100%",
-    position: "absolute",
-    pointerEvents: "none",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center"
-  },
-  inputRoot: {
-    color: "inherit"
-  },
-  inputInput: {
-    padding: theme.spacing(1, 1, 1, 7),
-    transition: theme.transitions.create("width"),
-    width: "100%",
-    [theme.breakpoints.up("sm")]: {
-      width: 120,
-      "&:focus": {
-        width: 200
-      }
-    }
-  }
-});
 
 class Home extends React.Component {
   state = {
@@ -51,149 +8,126 @@ class Home extends React.Component {
     year: "",
     month: "",
     day: "",
-    hour: ""
+    hour: "",
+    contentImg: "",
+    profileImg: "",
+    nickname: ""
   };
 
-  handleClickOpen = () => {
+  getContents = () => {
+    this.callApi()
+      .then(res => {
+        this.props.setContents(res);
+      })
+      .catch(err => console.log("err : " + err));
+  };
+
+  callApi = async () => {
+    const response = await fetch("/api/allContents");
+    const body = await response.json();
+    return body;
+  };
+
+  handleClickOpen = (contentImg, profileImg, nickname) => {
     this.setState({
-      open: "flex"
+      open: "flex",
+      contentImg: contentImg,
+      profileImg: profileImg,
+      nickname: nickname
     });
   };
 
   handleClickClose = () => {
     this.setState({
-      open: "none"
+      open: "none",
+      contentImg: "",
+      profileImg: "",
+      nickname: ""
     });
   };
+
+  componentDidMount() {
+    this.getContents();
+  }
+
   render() {
-    const { classes } = this.props;
     return (
       <Fragment>
-        <NavigationDiv>
-          <NavigationContentDiv>
-            <Left>
-              <Button>
-                <img src={require("./images/insta.png")} alt="home_button" />
-              </Button>
-              <Vl />
-              <Span kind="home">InstaClone</Span>
-            </Left>
-
-            <div className={classes.search}>
-              <div className={classes.searchIcon}>
-                <SearchIcon />
-              </div>
-              <InputBase
-                placeholder="검색"
-                classes={{
-                  root: classes.inputRoot,
-                  input: classes.inputInput
-                }}
-                inputProps={{ "aria-label": "Search" }}
-              />
-            </div>
-            <Button>
-              <img src={require("./images/user.png")} alt="user_button" />
-            </Button>
-          </NavigationContentDiv>
-        </NavigationDiv>
-
         <Div>
           <Main>
-            <Container>
-              <UpperSide>
-                <ImageDiv>
-                  <Button onClick={this.handleClickOpen}>
-                    <Image src={require("./images/one.png")} alt="first" />
-                  </Button>
-                </ImageDiv>
-                <WhoWhen>
-                  <Span kind="title">IU_Official</Span>
-                  <Span size="replyDate">2019년 7월 2일 14시</Span>
-                </WhoWhen>
-              </UpperSide>
-              <LowerSide>
-                <Span size="replyID">
-                  오늘은 어디에 가서 무슨 노래를 불렀다.
-                </Span>
-              </LowerSide>
-            </Container>
-            <Container>
-              <UpperSide>
-                <ImageDiv>
-                  <Button onClick={this.handleClickOpen}>
-                    <Image src={require("./images/two.png")} alt="first" />
-                  </Button>
-                </ImageDiv>
-                <WhoWhen>
-                  <Span kind="title">IU_Official</Span>
-                  <Span size="replyDate">2019년 7월 2일 14시</Span>
-                </WhoWhen>
-              </UpperSide>
-              <LowerSide>
-                <Span size="replyID">
-                  오늘은 어디에 가서 무슨 노래를 불렀다.
-                </Span>
-              </LowerSide>
-            </Container>
-            <Container>
-              <UpperSide>
-                <ImageDiv>
-                  <Button onClick={this.handleClickOpen}>
-                    <Image src={require("./images/three.png")} alt="first" />
-                  </Button>
-                </ImageDiv>
-                <WhoWhen>
-                  <Span kind="title">IU_Official</Span>
-                  <Span size="replyDate">2019년 7월 2일 14시</Span>
-                </WhoWhen>
-              </UpperSide>
-              <LowerSide>
-                <Span size="replyID">
-                  오늘은 어디에 가서 무슨 노래를 불렀다.
-                </Span>
-              </LowerSide>
-            </Container>
-            <Container>
-              <UpperSide>
-                <ImageDiv>
-                  <Button onClick={this.handleClickOpen}>
-                    <Image src={require("./images/four.png")} alt="first" />
-                  </Button>
-                </ImageDiv>
-                <WhoWhen>
-                  <Span kind="title">IU_Official</Span>
-                  <Span size="replyDate">2019년 7월 2일 14시</Span>
-                </WhoWhen>
-              </UpperSide>
-              <LowerSide>
-                <Span size="replyID">
-                  오늘은 어디에 가서 무슨 노래를 불렀다.
-                </Span>
-              </LowerSide>
-            </Container>
+            {this.props.contents.length !== 0
+              ? this.props.contents.map(c => {
+                  return (
+                    <Container>
+                      <UpperSide>
+                        <ImageDiv>
+                          <Button
+                            onClick={() =>
+                              this.handleClickOpen(
+                                c.contentImg,
+                                c.profileImg,
+                                c.nickname
+                              )
+                            }
+                          >
+                            {c.contentImg === null ? (
+                              <Image
+                                src={require("./images/basic.png")}
+                                alt="first"
+                              />
+                            ) : (
+                              <Image
+                                src={require("./images/one.png")}
+                                alt="first"
+                              />
+                            )}
+                          </Button>
+                        </ImageDiv>
+                        <WhoWhen>
+                          <Span kind="title">{c.nickname}</Span>
+                          <Span size="replyDate">{c.contentDate}</Span>
+                        </WhoWhen>
+                      </UpperSide>
+                      <LowerSide>
+                        <Span size="replyID">{c.content}</Span>
+                      </LowerSide>
+                    </Container>
+                  );
+                })
+              : ""}
           </Main>
         </Div>
-
         <Dialog display={this.state.open}>
           <CloseButton onClick={this.handleClickClose}>
             <img src={require("./images/close.png")} alt="close" />
           </CloseButton>
           <DialogDiv>
             <DialogImgDiv>
-              <DialogImg src={require("./images/first.png")} alt="img" />
+              {this.state.contentImg === null ? (
+                <DialogImg src={require("./images/basic.png")} alt="img" />
+              ) : (
+                <DialogImg src={require("./images/first.png")} alt="img" />
+              )}
             </DialogImgDiv>
             <DialogContentDiv>
               <DialogContentUpperDiv>
                 <ProfileImgDiv size="small">
-                  <ProfileImg
-                    size="small"
-                    src={require("./images/profile.png")}
-                    alt="img"
-                  />
+                  {this.state.profileImg === null ? (
+                    <ProfileImg
+                      size="small"
+                      src={require("./images/default.png")}
+                      alt="img"
+                    />
+                  ) : (
+                    <ProfileImg
+                      size="small"
+                      src={require("./images/profile.png")}
+                      alt="img"
+                    />
+                  )}
                 </ProfileImgDiv>
                 <ProfileInfoDiv size="small">
-                  <Span size="small">Parkhyoshin_official</Span>
+                  <Span size="small">{this.state.nickname}</Span>
                 </ProfileInfoDiv>
               </DialogContentUpperDiv>
               <DialogContentMidDiv>
@@ -210,10 +144,10 @@ class Home extends React.Component {
                     <Span size="reply">사진 맘에 들어요</Span>
                     <Span size="replyDate">
                       {`${this.state.date.getFullYear()}년 
-                    ${this.state.date.getMonth() + 1}월
-                    ${this.state.date.getDay()}일
-                    ${this.state.date.getHours()}시
-                    `}
+          ${this.state.date.getMonth() + 1}월
+          ${this.state.date.getDay()}일
+          ${this.state.date.getHours()}시
+          `}
                     </Span>
                   </ReplyDiv>
                 </ReplyContainer>
@@ -290,6 +224,7 @@ const DialogImgDiv = styled.div`
   width: 64%;
   height: auto;
   max-width: 600px;
+  background-color: #000000;
 `;
 
 const DialogImg = styled.img`
@@ -344,40 +279,13 @@ const Input = styled.input`
   }
 `;
 
-const Left = styled.div`
-  display: flex;
-`;
-
-const NavigationDiv = styled.div`
-  width: 100%;
-  height: 70px;
-  background-color: #ffffff;
-  display: flex;
-  justify-content: center;
-  border-bottom: 1px solid rgba(230, 230, 230);
-`;
-
-const NavigationContentDiv = styled.div`
-  width: 950px;
-  height: 70px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-`;
-
 const Button = styled.button`
   border: none;
   background-color: transparent;
   cursor: pointer;
-`;
-
-const Vl = styled.div`
-  display: block;
-  width: 1px;
-  background-color: #000;
-  height: 32px;
-  margin-left: 14px;
-  margin-right: 14px;
+  &:focus {
+    outline: none;
+  }
 `;
 
 const ProfileImgDiv = styled.div`
@@ -456,11 +364,6 @@ const Span = styled.div`
         margin-top: 3px;
         color: #365f88;
       `;
-    } else if (props.kind === "home") {
-      return css`
-        font-weight: 700;
-        font-size: 20px;
-      `;
     } else if (props.size === "small") {
       return css`
         font-weight: 700;
@@ -515,8 +418,8 @@ const Container = styled.div`
 `;
 
 const ImageDiv = styled.div`
-  width: 300px;
   height: 200px;
+  width: 300px;
   margin-top: -35px;
   margin-left: 10px;
 `;
@@ -524,6 +427,7 @@ const ImageDiv = styled.div`
 const Image = styled.img`
   height: 200px;
   width: 300px;
+  background-color: #000000;
   border-radius: 10px;
   box-shadow: 0px 5px 5px 5px rgba(160, 160, 160);
 `;
@@ -550,4 +454,4 @@ const LowerSide = styled.div`
   align-items: center;
 `;
 
-export default withStyles(styles)(Home);
+export default Home;
