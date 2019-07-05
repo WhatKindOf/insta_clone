@@ -3,6 +3,7 @@ import styled, { css } from "styled-components";
 import { post } from "axios";
 import { withStyles } from "@material-ui/core/styles";
 import Dialog from "@material-ui/core/Dialog";
+import DialogContent from "@material-ui/core/DialogContent";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import DialogActions from "@material-ui/core/DialogActions";
 import Button from "@material-ui/core/Button";
@@ -17,6 +18,9 @@ const styles = theme => ({
     display: "flex",
     justifyContent: "space-around",
     alignItems: "center"
+  },
+  hidden: {
+    display: "none"
   }
 });
 
@@ -33,7 +37,19 @@ class User extends React.Component {
     nickname: "",
     content: "",
     contentDate: "",
-    delete: false
+    delete: false,
+    contentID: "",
+    edit: "none",
+    editOpen: false,
+    file: "",
+    fileName: ""
+  };
+
+  handleFileChange = e => {
+    this.setState({
+      file: e.target.files[0],
+      fileName: e.target.value
+    });
   };
 
   getContents = () => {
@@ -44,7 +60,7 @@ class User extends React.Component {
       .catch(err => console.log("err : " + err));
   };
 
-  callApi = async () => {
+  callApi = () => {
     const url = "/api/contents";
     const data = {
       email: this.props.account.email
@@ -80,9 +96,22 @@ class User extends React.Component {
     });
   };
 
-  showDialog = () => {
+  showEdit = () => {
     this.setState({
-      delete: true
+      edit: "block"
+    });
+  };
+
+  closeEdit = () => {
+    this.setState({
+      edit: "none"
+    });
+  };
+
+  showDialog = contentID => {
+    this.setState({
+      delete: true,
+      contentID: contentID
     });
   };
 
@@ -92,12 +121,95 @@ class User extends React.Component {
     });
   };
 
+  showEditDialog = () => {
+    this.setState({
+      editOpen: true
+    });
+  };
+
+  closeEditDialog = () => {
+    this.setState({
+      editOpen: false
+    });
+  };
+
+  deleteContent = () => {
+    this.deleteContentAction()
+      .then(response => {
+        if (response.data.code === undefined) {
+          this.closeDialog();
+          this.getContents();
+        }
+      })
+      .catch(err => console.log("err : " + err));
+  };
+
+  deleteContentAction = () => {
+    const url = "/api/deleteContent";
+    const data = {
+      contentID: this.state.contentID,
+      email: this.props.account.email
+    };
+    return post(url, data);
+  };
+
+  refreshAccountAction = () => {
+    const url = "/api/login";
+    const data = {
+      email: this.props.account.email,
+      password: this.props.account.password
+    };
+
+    return post(url, data);
+  };
+
+  refreshAccount = () => {
+    this.refreshAccountAction().then(response => {
+      const account = {
+        email: response.data[0].email,
+        name: response.data[0].name,
+        nickname: response.data[0].nickname,
+        password: response.data[0].password,
+        title: response.data[0].title,
+        profileImg: response.data[0].profileImg
+      };
+      this.props.editProfileImg(account);
+    });
+  };
+
+  editProfileImg = () => {
+    const url = "/api/editProfileImg";
+    const formData = new FormData();
+    formData.append("image", this.state.file);
+    formData.append("email", this.props.account.email);
+    const config = {
+      headers: {
+        "content-type": "multipart/form-data"
+      }
+    };
+    return post(url, formData, config);
+  };
+
+  handleFormSubmit = e => {
+    e.preventDefault();
+    this.editProfileImg().then(response => {
+      this.refreshAccount();
+      this.closeEditDialog();
+    });
+    this.setState({
+      file: null,
+      fileName: "",
+      editOpen: false
+    });
+  };
+
   componentWillMount() {
     this.getContents();
   }
 
   render() {
     const { classes } = this.props;
+    console.log(this.props.account.profileImg);
     return (
       <Fragment>
         <Div>
@@ -110,9 +222,20 @@ class User extends React.Component {
             </ProfileBackDiv>
             <ProfileDiv>
               <ProfileImgDiv>
+                <EditImgButton
+                  onMouseOver={this.showEdit}
+                  onMouseOut={this.closeEdit}
+                  onClick={this.showEditDialog}
+                >
+                  <EditImg
+                    display={this.state.edit}
+                    src={require("./images/edit.png")}
+                    alt="edit_img"
+                  />
+                </EditImgButton>
                 {this.props.account.profileImg ? (
                   <ProfileImg
-                    src={require("./images/profile.png")}
+                    src={this.props.account.profileImg}
                     alt="profile_img"
                   />
                 ) : (
@@ -133,7 +256,10 @@ class User extends React.Component {
                 ? this.props.contents.map(c => {
                     return (
                       <ImageDiv>
-                        <StyledButton onClick={this.showDialog} what="delete">
+                        <StyledButton
+                          onClick={() => this.showDialog(c.contentID)}
+                          what="delete"
+                        >
                           <img
                             src={require("./images/delete.png")}
                             alt="delete_button"
@@ -245,6 +371,7 @@ class User extends React.Component {
             </DialogContentDiv>
           </DialogDiv>
         </StyledDialog>
+
         <Dialog open={this.state.delete}>
           <DialogTitle className={classes.center}>
             게시물을 삭제하시겠습니까?
@@ -261,6 +388,53 @@ class User extends React.Component {
               variant="contained"
               color="primary"
               onClick={this.closeDialog}
+            >
+              취소
+            </Button>
+          </DialogActions>
+        </Dialog>
+
+        <Dialog open={this.state.editOpen}>
+          <DialogTitle className={classes.center}>변경할 사진 선택</DialogTitle>
+          <DialogContent>
+            <input
+              className={classes.hidden}
+              accept="image/*"
+              id="raised-button-file"
+              type="file"
+              file={this.state.file}
+              value={this.state.fileName}
+              onChange={this.handleFileChange}
+            />
+            <label htmlFor="raised-button-file">
+              <Button
+                variant="contained"
+                color="primary"
+                component="span"
+                name="file"
+              >
+                {this.state.fileName === ""
+                  ? "프로필 이미지 선택"
+                  : this.state.fileName}
+              </Button>
+            </label>
+            <br />
+            <ProfileImgDiv>
+              <ProfileImg size="preview" alt="img_preview" />
+            </ProfileImgDiv>
+          </DialogContent>
+          <DialogActions>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={this.handleFormSubmit}
+            >
+              변경
+            </Button>
+            <Button
+              variant="outlined"
+              color="primary"
+              onClick={this.closeEditDialog}
             >
               취소
             </Button>
@@ -503,7 +677,35 @@ const ProfileImg = styled.img`
         height: 48px;
         width: 48px;
       `;
+    } else if (props.size === "preview") {
+      return css`
+        border: 7px solid gray;
+      `;
     }
+  }}
+`;
+
+const EditImgButton = styled.button`
+  position: absolute;
+  width: 190px;
+  height: 190px;
+  border-radius: 50%;
+  border: none;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: transparent;
+  cursor: pointer;
+  &:focus {
+    outline: none;
+  }
+`;
+
+const EditImg = styled.img`
+  ${props => {
+    return css`
+      display: ${props.display};
+    `;
   }}
 `;
 

@@ -233,6 +233,7 @@ class Appbar extends React.Component {
             setContents={this.props.setContents}
             account={this.props.account}
             contents={this.props.contents}
+            editProfileImg={this.props.editProfileImg}
           />
         )}
         <Dialog open={this.state.open}>

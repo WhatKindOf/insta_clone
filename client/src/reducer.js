@@ -7,6 +7,7 @@ const SHOW_HOME = "SHOW_HOME";
 const SHOW_USER = "SHOW_USER";
 const LOGOUT_ACTION = "LOGOUT_ACTION";
 const SET_CONTENTS = "SET_CONTENTS";
+const EDIT_PROFILEIMG = "EDIT_PROFILEIMG";
 
 // Action Creators
 
@@ -54,6 +55,13 @@ function setContents(contents) {
   };
 }
 
+function editProfileImg(account) {
+  return {
+    type: EDIT_PROFILEIMG,
+    account: account
+  };
+}
+
 // Reducer
 
 const initialState = {
@@ -86,6 +94,8 @@ function reducer(state = initialState, action) {
       return applyShowUser(state);
     case SET_CONTENTS:
       return applySetContents(state, action.contents);
+    case EDIT_PROFILEIMG:
+      return applyEditProfileImg(state, action.account);
     default:
       return state;
   }
@@ -158,6 +168,13 @@ function applySetContents(state, contents) {
   };
 }
 
+function applyEditProfileImg(state, account) {
+  return {
+    ...state,
+    account: account
+  };
+}
+
 // export Action Creators
 
 const actionCreators = {
@@ -167,7 +184,8 @@ const actionCreators = {
   showHome,
   showUser,
   logoutAction,
-  setContents
+  setContents,
+  editProfileImg
 };
 
 export { actionCreators };

@@ -18,8 +18,11 @@ const connection = mysql.createConnection({
   port: conf.port,
   database: conf.database
 });
-
 connection.connect();
+
+const multer = require("multer");
+// multer는 multipart/form-data를 다루기 위한 node.js의 미들웨어
+const uploadProfileImg = multer({ dest: "./upload/profileImg" });
 
 app.get("/api/allContents", (req, res) => {
   connection.query(
@@ -28,6 +31,34 @@ app.get("/api/allContents", (req, res) => {
       res.send(rows);
     }
   );
+});
+
+app.use("/profileImg", express.static("./upload/profileImg"));
+
+app.post(
+  "/api/editProfileImg",
+  uploadProfileImg.single("image"),
+  (req, res) => {
+    let sql = "UPDATE USER SET profileImg=? WHERE email=?";
+
+    let image = "/profileImg/" + req.file.filename;
+    let email = req.body.email;
+    let params = [image, email];
+    connection.query(sql, params, (err, rows, fields) => {
+      res.send(err);
+    });
+  }
+);
+
+app.post("/api/deleteContent", (req, res) => {
+  let sql = "DELETE FROM CONTENTS WHERE email = ? and contentID = ?";
+
+  let email = req.body.email;
+  let contentID = req.body.contentID;
+  let params = [email, contentID];
+  connection.query(sql, params, (err, rows, fields) => {
+    res.send(err);
+  });
 });
 
 app.post("/api/deleteUser", (req, res) => {
