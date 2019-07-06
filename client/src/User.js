@@ -27,13 +27,7 @@ const styles = theme => ({
 class User extends React.Component {
   state = {
     open: "none",
-    date: new Date(),
-    year: "",
-    month: "",
-    day: "",
-    hour: "",
     contentImg: "",
-    profileImg: "",
     nickname: "",
     content: "",
     contentDate: "",
@@ -70,32 +64,58 @@ class User extends React.Component {
     return post(url, data);
   };
 
-  handleClickOpen = (
-    contentImg,
-    profileImg,
-    nickname,
-    content,
-    contentDate
-  ) => {
+  removeDuplicates = objectArray => {
+    let temp = {};
+
+    for (let i = objectArray.length - 1; i >= 0; i--) {
+      let so = JSON.stringify(objectArray[i]);
+
+      if (temp[so]) {
+        objectArray.splice(i, 1);
+      } else {
+        temp[so] = true;
+      }
+    }
+    return objectArray;
+  };
+
+  getReply = contentID => {
+    this.getReplyAction(contentID)
+      .then(res => {
+        const arr = this.removeDuplicates(res.data);
+        this.props.setReply(arr);
+      })
+      .catch(err => console.log("err : " + err));
+  };
+
+  getReplyAction = contentID => {
+    const url = "/api/getReply";
+    const data = {
+      contentEmail: this.props.account.email,
+      contentID: contentID
+    };
+    return post(url, data);
+  };
+
+  handleClickOpen = (contentImg, content, contentDate, contentID) => {
     this.setState({
       open: "flex",
       contentImg: contentImg,
-      profileImg: profileImg,
-      nickname: nickname,
       content: content,
       contentDate: contentDate
     });
+    this.getReply(contentID);
   };
 
   handleClickClose = () => {
     this.setState({
       open: "none",
       contentImg: "",
-      profileImg: "",
       nickname: "",
       content: "",
       contentDate: ""
     });
+    this.props.resetReply();
   };
 
   showEdit = () => {
@@ -214,7 +234,6 @@ class User extends React.Component {
 
   render() {
     const { classes } = this.props;
-    console.log(this.props.account.profileImg);
     return (
       <Fragment>
         <Div>
@@ -274,10 +293,9 @@ class User extends React.Component {
                           onClick={() =>
                             this.handleClickOpen(
                               c.contentImg,
-                              c.profileImg,
-                              c.nickname,
                               c.content,
-                              c.contentDate
+                              c.contentDate,
+                              c.contentID
                             )
                           }
                         >
@@ -317,10 +335,10 @@ class User extends React.Component {
               <DialogContentUpperDiv>
                 <UpperAccountDiv>
                   <ProfileImgDiv size="small">
-                    {this.state.profileImg ? (
+                    {this.props.account.profileImg ? (
                       <ProfileImg
                         size="small"
-                        src={this.state.profileImg}
+                        src={this.props.account.profileImg}
                         alt="profile_img"
                       />
                     ) : (
@@ -345,26 +363,34 @@ class User extends React.Component {
                 </UpperContentDiv>
               </DialogContentUpperDiv>
               <DialogContentMidDiv>
-                <ReplyContainer>
-                  <ProfileImgDiv size="small">
-                    <ProfileImg
-                      size="small"
-                      src={require("./images/first.png")}
-                      alt="img"
-                    />
-                  </ProfileImgDiv>
-                  <ReplyDiv>
-                    <Span size="replyID">dudumi</Span>
-                    <Span size="reply">사진 맘에 들어요</Span>
-                    <Span size="replyDate">
-                      {`${this.state.date.getFullYear()}년 
-                    ${this.state.date.getMonth() + 1}월
-                    ${this.state.date.getDay()}일
-                    ${this.state.date.getHours()}시
-                    `}
-                    </Span>
-                  </ReplyDiv>
-                </ReplyContainer>
+                {this.props.reply.length !== 0
+                  ? this.props.reply.map(r => {
+                      return (
+                        <ReplyContainer>
+                          <ProfileImgDiv size="small">
+                            {r.replyImg === null ? (
+                              <ProfileImg
+                                size="small"
+                                src={require("./images/default.png")}
+                                alt="img"
+                              />
+                            ) : (
+                              <ProfileImg
+                                size="small"
+                                src={r.replyImg}
+                                alt="img"
+                              />
+                            )}
+                          </ProfileImgDiv>
+                          <ReplyDiv>
+                            <Span size="replyID">{r.replyNickname}</Span>
+                            <Span size="reply">{r.replyContent}</Span>
+                            <Span size="replyDate">{r.replyDate}</Span>
+                          </ReplyDiv>
+                        </ReplyContainer>
+                      );
+                    })
+                  : ""}
               </DialogContentMidDiv>
               <DialogContentLowerDiv>
                 <Input

@@ -140,11 +140,23 @@ app.post(
     let contentImg = "/contentImg/" + req.file.filename;
     let content = req.body.content;
     let contentDate = req.body.contentDate;
-    params = [contentID, email, contentImg, content, contentDate];
+    let params = [contentID, email, contentImg, content, contentDate];
     connection.query(sql, params, (err, rows, fields) => {
       res.send(params);
     });
   }
 );
+
+app.post("/api/getReply", (req, res) => {
+  let sql =
+    "SELECT replyNickname, replyImg, replyContent, replyDate FROM CONTENTS, REPLY WHERE REPLY.contentEmail = ? AND REPLY.contentID = ?";
+
+  let contentEmail = req.body.contentEmail;
+  let contentID = req.body.contentID;
+  let params = [contentEmail, contentID];
+  connection.query(sql, params, (err, rows, fields) => {
+    res.send(rows);
+  });
+});
 
 app.listen(port, () => console.log(`Listening on port ${port}`));

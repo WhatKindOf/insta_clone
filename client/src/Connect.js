@@ -4,12 +4,13 @@ import { actionCreators } from "./reducer";
 import Which from "./Which";
 
 function mapStateToProps(state) {
-  const { what, account, contents, homeOrUser } = state;
+  const { what, account, contents, homeOrUser, reply } = state;
   return {
     what,
     account,
     contents,
-    homeOrUser
+    homeOrUser,
+    reply
   };
 }
 
@@ -26,7 +27,9 @@ function mapDispatchToProps(dispatch) {
     inputNewContent: bindActionCreators(
       actionCreators.inputNewContent,
       dispatch
-    )
+    ),
+    setReply: bindActionCreators(actionCreators.setReply, dispatch),
+    resetReply: bindActionCreators(actionCreators.resetReply, dispatch)
   };
 }
 

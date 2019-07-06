@@ -9,6 +9,8 @@ const LOGOUT_ACTION = "LOGOUT_ACTION";
 const SET_CONTENTS = "SET_CONTENTS";
 const EDIT_PROFILEIMG = "EDIT_PROFILEIMG";
 const INPUT_NEWCONTENT = "INPUT_NEWCONTENT";
+const SET_REPLY = "SET_REPLY";
+const RESET_REPLY = "RESET_REPLY";
 
 // Action Creators
 
@@ -70,6 +72,19 @@ function inputNewContent(newContent) {
   };
 }
 
+function setReply(reply) {
+  return {
+    type: SET_REPLY,
+    reply: reply
+  };
+}
+
+function resetReply() {
+  return {
+    type: RESET_REPLY
+  };
+}
+
 // Reducer
 
 const initialState = {
@@ -83,7 +98,8 @@ const initialState = {
     profileImg: ""
   },
   contents: [],
-  homeOrUser: "default"
+  homeOrUser: "default",
+  reply: []
 };
 
 function reducer(state = initialState, action) {
@@ -106,6 +122,10 @@ function reducer(state = initialState, action) {
       return applyEditProfileImg(state, action.account);
     case INPUT_NEWCONTENT:
       return applyInputNewContent(state, action.newContent);
+    case SET_REPLY:
+      return applySetReply(state, action.reply);
+    case RESET_REPLY:
+      return applyResetReply(state);
     default:
       return state;
   }
@@ -192,6 +212,20 @@ function applyInputNewContent(state, newContent) {
   };
 }
 
+function applySetReply(state, reply) {
+  return {
+    ...state,
+    reply: reply
+  };
+}
+
+function applyResetReply(state) {
+  return {
+    ...state,
+    reply: []
+  };
+}
+
 // export Action Creators
 
 const actionCreators = {
@@ -203,7 +237,9 @@ const actionCreators = {
   logoutAction,
   setContents,
   editProfileImg,
-  inputNewContent
+  inputNewContent,
+  setReply,
+  resetReply
 };
 
 export { actionCreators };

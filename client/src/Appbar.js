@@ -411,6 +411,9 @@ class Appbar extends React.Component {
             account={this.props.account}
             contents={this.props.contents}
             editProfileImg={this.props.editProfileImg}
+            setReply={this.props.setReply}
+            reply={this.props.reply}
+            resetReply={this.props.resetReply}
           />
         )}
 
