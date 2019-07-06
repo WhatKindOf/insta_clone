@@ -42,13 +42,15 @@ class User extends React.Component {
     edit: "none",
     editOpen: false,
     file: "",
-    fileName: ""
+    fileName: "",
+    imgSrc: ""
   };
 
   handleFileChange = e => {
     this.setState({
       file: e.target.files[0],
-      fileName: e.target.value
+      fileName: e.target.value,
+      imgSrc: URL.createObjectURL(e.target.files[0]) // 불러온 이미지 미리보기하기 위한 url
     });
   };
 
@@ -129,7 +131,10 @@ class User extends React.Component {
 
   closeEditDialog = () => {
     this.setState({
-      editOpen: false
+      file: null,
+      fileName: "",
+      editOpen: false,
+      imgSrc: ""
     });
   };
 
@@ -277,14 +282,11 @@ class User extends React.Component {
                           }
                         >
                           {c.contentImg ? (
-                            <Image
-                              src={require("./images/first.png")}
-                              alt="first"
-                            />
+                            <Image src={c.contentImg} alt="content_img" />
                           ) : (
                             <Image
                               src={require("./images/basic.png")}
-                              alt="first"
+                              alt="content_img"
                             />
                           )}
                         </StyledButton>
@@ -303,9 +305,12 @@ class User extends React.Component {
           <DialogDiv>
             <DialogImgDiv>
               {this.state.contentImg ? (
-                <DialogImg src={require("./images/first.png")} alt="first" />
+                <DialogImg src={this.state.contentImg} alt="content_img" />
               ) : (
-                <DialogImg src={require("./images/basic.png")} alt="first" />
+                <DialogImg
+                  src={require("./images/basic.png")}
+                  alt="content_img"
+                />
               )}
             </DialogImgDiv>
             <DialogContentDiv>
@@ -315,7 +320,7 @@ class User extends React.Component {
                     {this.state.profileImg ? (
                       <ProfileImg
                         size="small"
-                        src={require("./images/profile.png")}
+                        src={this.state.profileImg}
                         alt="profile_img"
                       />
                     ) : (
@@ -418,12 +423,19 @@ class User extends React.Component {
                   : this.state.fileName}
               </Button>
             </label>
-            <br />
             <ProfileImgDiv>
-              <ProfileImg size="preview" alt="img_preview" />
+              {this.state.file ? (
+                <ProfileImg
+                  src={this.state.imgSrc}
+                  size="preview"
+                  alt="img_preview"
+                />
+              ) : (
+                ""
+              )}
             </ProfileImgDiv>
           </DialogContent>
-          <DialogActions>
+          <DialogActions className={classes.between}>
             <Button
               variant="contained"
               color="primary"
@@ -605,8 +617,8 @@ const StyledButton = styled.button`
     if (props.what === "delete") {
       return css`
         position: absolute;
-        margin-top: 34px;
-        margin-left: 253px;
+        margin-top: -130px;
+        margin-left: 130px;
       `;
     }
   }}
@@ -680,6 +692,7 @@ const ProfileImg = styled.img`
     } else if (props.size === "preview") {
       return css`
         border: 7px solid gray;
+        margin: 15px 0px;
       `;
     }
   }}
@@ -786,16 +799,20 @@ const ContentDiv = styled.div`
   width: 100%;
   background-color: #fafafa;
   display: flex;
-  justify-content: flex-start;
+  justify-content: space-between;
   align-items: flex-start;
   flex-wrap: wrap;
 `;
 
 const ImageDiv = styled.div`
-  width: auto;
-  height: auto;
-  max-width: 300px;
-  max-height: 300px;
+  width: 300px;
+  height: 300px;
+  border: 2px solid gray;
+  border-radius: 10px;
+  box-shadow: 0px 5px 5px 5px gray;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 `;
 
 const Image = styled.img`

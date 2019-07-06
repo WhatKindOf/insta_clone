@@ -22,7 +22,11 @@ function mapDispatchToProps(dispatch) {
     showUser: bindActionCreators(actionCreators.showUser, dispatch),
     logoutAction: bindActionCreators(actionCreators.logoutAction, dispatch),
     setContents: bindActionCreators(actionCreators.setContents, dispatch),
-    editProfileImg: bindActionCreators(actionCreators.editProfileImg, dispatch)
+    editProfileImg: bindActionCreators(actionCreators.editProfileImg, dispatch),
+    inputNewContent: bindActionCreators(
+      actionCreators.inputNewContent,
+      dispatch
+    )
   };
 }
 

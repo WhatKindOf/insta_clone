@@ -63,15 +63,73 @@ const styles = theme => ({
     display: "flex",
     justifyContent: "space-around",
     alignItems: "center"
+  },
+  hidden: {
+    display: "none"
   }
 });
 
 class Appbar extends React.Component {
   state = {
     showOutNotice: "none",
-    open: false,
+    showWriteNotice: "none",
+    out: false,
+    write: false,
     password: "",
-    errorMessage: false
+    errorMessage: false,
+    file: null,
+    fileName: "",
+    imgSrc: "",
+    countOfText: 0,
+    contentText: "",
+    backSpace: false,
+    contentID: ""
+  };
+
+  reset = () => {
+    this.setState({
+      file: null,
+      fileName: "",
+      imgSrc: ""
+    });
+  };
+
+  handleFileChange = e => {
+    this.setState({
+      file: e.target.files[0],
+      fileName: e.target.value,
+      imgSrc: URL.createObjectURL(e.target.files[0]) // 불러온 이미지 미리보기하기 위한 url
+    });
+  };
+
+  blockWriteNotice = () => {
+    this.setState({
+      showWriteNotice: "block"
+    });
+  };
+
+  noneWriteNotice = () => {
+    this.setState({
+      showWriteNotice: "none"
+    });
+  };
+
+  showWriteDialog = () => {
+    this.getContentID();
+    this.setState({
+      write: true
+    });
+  };
+
+  closeWriteDialog = () => {
+    this.setState({
+      file: null,
+      fileName: "",
+      write: false,
+      imgSrc: "",
+      contentText: "",
+      countOfText: 0
+    });
   };
 
   blockOutNotice = () => {
@@ -86,16 +144,17 @@ class Appbar extends React.Component {
     });
   };
 
-  showDialog = () => {
+  showOutDialog = () => {
     this.setState({
-      open: true
+      out: true
     });
   };
 
-  closeDialog = () => {
+  closeOutDialog = () => {
     this.setState({
       password: "",
-      open: false
+      out: false,
+      countOfText: 0
     });
   };
 
@@ -107,9 +166,106 @@ class Appbar extends React.Component {
   };
 
   handleValueChange = e => {
-    let nextState = {};
-    nextState[e.target.name] = e.target.value;
-    this.setState(nextState);
+    if (this.state.backSpace || e.target.textLength <= 50) {
+      let nextState = {};
+      nextState[e.target.name] = e.target.value;
+      this.setState(nextState);
+      this.setState({
+        countOfText: e.target.textLength
+      });
+    }
+  };
+
+  getCurrentDate = () => {
+    const date = new Date();
+    const DayOfWeek = [
+      "일요일",
+      "월요일",
+      "화요일",
+      "수요일",
+      "목요일",
+      "금요일",
+      "토요일"
+    ];
+    const currentDate =
+      date.getFullYear() +
+      "년 " +
+      (date.getMonth() + 1) +
+      "월 " +
+      date.getDate() +
+      "일 " +
+      DayOfWeek[date.getDay()] +
+      " " +
+      date.getHours() +
+      "시";
+
+    return currentDate;
+  };
+
+  writeContent = () => {
+    this.writeContentAction()
+      .then(response => {
+        const newContent = {
+          content: response.data[3],
+          contentDate: response.data[4],
+          contentID: response.data[0],
+          contentImg: response.data[2],
+          email: this.props.account.email,
+          nickname: this.props.account.nickname,
+          profileImg: this.props.account.profileImg
+        };
+        this.closeWriteDialog();
+        this.props.inputNewContent(newContent);
+      })
+      .catch(err => console.log("err : " + err));
+  };
+
+  initContentID = () => {
+    this.setState({
+      contentID: 1
+    });
+  };
+
+  plusContentID = plus => {
+    this.setState({
+      contentID: plus + 1
+    });
+  };
+
+  getContentID = async () => {
+    this.getContentIDAction().then(response => {
+      if (response.data[0].contentID === null) {
+        this.initContentID();
+      } else {
+        this.plusContentID(response.data[0].contentID);
+      }
+    });
+  };
+
+  getContentIDAction = () => {
+    const url = "/api/getContentID";
+    const data = {
+      email: this.props.account.email
+    };
+    return post(url, data);
+  };
+
+  writeContentAction = async () => {
+    const currentDate = await this.getCurrentDate();
+
+    const url = "/api/writeContent";
+    const formData = new FormData();
+    formData.append("contentID", this.state.contentID);
+    formData.append("email", this.props.account.email);
+    formData.append("contentImg", this.state.file);
+    formData.append("content", this.state.contentText);
+    formData.append("contentDate", currentDate);
+    const config = {
+      headers: {
+        "content-type": "multipart/form-data"
+      }
+    };
+    return post(url, formData, config);
   };
 
   deleteUser = () => {
@@ -117,20 +273,22 @@ class Appbar extends React.Component {
       this.deleteUserAction()
         .then(response => {
           if (response.data.code === undefined) {
-            this.closeDialog();
+            this.closeOutDialog();
             this.props.showLogin();
           } else if (response.data !== null) {
             console.log(response.data.code);
             console.log("Error 발생!");
             this.setState({
-              password: ""
+              password: "",
+              countOfText: 0
             });
           }
         })
         .catch(err => console.log("err : " + err));
     } else {
       this.setState({
-        errorMessage: true
+        errorMessage: true,
+        countOfText: 0
       });
     }
   };
@@ -202,11 +360,29 @@ class Appbar extends React.Component {
               >
                 <img src={require("./images/user.png")} alt="user_button" />
               </StyledButton>
+
+              <div>
+                <StyledButton
+                  onMouseOver={this.blockWriteNotice}
+                  onMouseOut={this.noneWriteNotice}
+                  onClick={this.showWriteDialog}
+                >
+                  <img
+                    src={require("./images/camera.png")}
+                    alt="write_button"
+                  />
+                </StyledButton>
+                <UpArrow display={this.state.showWriteNotice} />
+                <OutNotice display={this.state.showWriteNotice}>
+                  <OutNoticeSentence>타임라인 작성</OutNoticeSentence>
+                </OutNotice>
+              </div>
+
               <div>
                 <StyledButton
                   onMouseOver={this.blockOutNotice}
                   onMouseOut={this.noneOutNotice}
-                  onClick={this.showDialog}
+                  onClick={this.showOutDialog}
                 >
                   <img src={require("./images/out.png")} alt="exit_button" />
                 </StyledButton>
@@ -222,6 +398,7 @@ class Appbar extends React.Component {
             </Right>
           </NavigationContentDiv>
         </NavigationDiv>
+
         {this.props.homeOrUser === "default" ? (
           <Home
             setContents={this.props.setContents}
@@ -236,7 +413,8 @@ class Appbar extends React.Component {
             editProfileImg={this.props.editProfileImg}
           />
         )}
-        <Dialog open={this.state.open}>
+
+        <Dialog open={this.state.out}>
           <DialogTitle className={classes.center}>회원 탈퇴</DialogTitle>
           <DialogContent>
             <TextField
@@ -259,7 +437,7 @@ class Appbar extends React.Component {
             <Button
               variant="contained"
               color="primary"
-              onClick={this.closeDialog}
+              onClick={this.closeOutDialog}
             >
               취소
             </Button>
@@ -270,10 +448,136 @@ class Appbar extends React.Component {
             비밀번호가 일치하지 않습니다!
           </DialogTitle>
         </Dialog>
+
+        <Dialog open={this.state.write}>
+          <DialogTitle className={classes.center}>타임라인 작성</DialogTitle>
+          <DialogContent>
+            <WriteImgDiv>
+              {this.state.file ? (
+                <Fragment>
+                  <WriteImg src={this.state.imgSrc} alt="write_img" />
+                  <StyledButton onClick={this.reset} what="delete">
+                    <img
+                      src={require("./images/delete.png")}
+                      alt="delete_button"
+                    />
+                  </StyledButton>
+                </Fragment>
+              ) : (
+                <Fragment>
+                  <input
+                    className={classes.hidden}
+                    accept="image/*"
+                    id="raised-button-file"
+                    type="file"
+                    file={this.state.file}
+                    value={this.state.fileName}
+                    onChange={this.handleFileChange}
+                  />
+                  <label htmlFor="raised-button-file">
+                    <Button component="span" name="file">
+                      <img
+                        src={require("./images/plus.png")}
+                        alt="add_img_button"
+                      />
+                    </Button>
+                  </label>
+                </Fragment>
+              )}
+            </WriteImgDiv>
+            <WriteTextarea
+              name="contentText"
+              rows="3"
+              placeholder="타임라인 작성"
+              value={this.state.contentText}
+              onKeyDown={e => {
+                if (e.keyCode === 8) {
+                  this.setState({
+                    backSpace: true
+                  });
+                } else {
+                  this.setState({
+                    backSpace: false
+                  });
+                }
+              }}
+              onChange={this.handleValueChange}
+            />
+            <LimitDiv>
+              <TextLimitDiv>
+                <span>({this.state.countOfText} / 50)</span>
+              </TextLimitDiv>
+            </LimitDiv>
+          </DialogContent>
+          <DialogActions className={classes.between}>
+            <Button
+              onClick={this.writeContent}
+              variant="contained"
+              color="primary"
+            >
+              등록
+            </Button>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={this.closeWriteDialog}
+            >
+              취소
+            </Button>
+          </DialogActions>
+        </Dialog>
       </Fragment>
     );
   }
 }
+
+const TextLimitDiv = styled.div`
+  background-color: gray;
+  padding: 5px;
+  border: none;
+  border-radius: 5px;
+  color: white;
+`;
+
+const LimitDiv = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  margin-top: 5px;
+`;
+
+const WriteTextarea = styled.textarea`
+  width: 386px;
+  resize: none;
+  outline: none;
+  padding: 0 9px;
+  margin-top: 15px;
+  line-height: 45px;
+  border: 7px solid gray;
+  border-radius: 5px;
+  color: black;
+  font-size: 18px;
+  font-weight: 600;
+  &::-webkit-input-placeholder {
+    color: gray;
+    font-size: 18px;
+    font-weight: 600;
+  }
+`;
+
+const WriteImg = styled.img`
+  width: 100%;
+  height: 100%;
+`;
+
+const WriteImgDiv = styled.div`
+  width: 400px;
+  height: 400px;
+  border: 7px solid gray;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
 
 const UpArrow = styled.div`
   margin-left: 15px;
@@ -373,6 +677,15 @@ const StyledButton = styled.button`
   &:focus {
     outline: none;
   }
+  ${props => {
+    if (props.what === "delete") {
+      return css`
+        position: absolute;
+        margin-top: -180px;
+        margin-left: 180px;
+      `;
+    }
+  }}
 `;
 
 export default withStyles(styles)(Appbar);

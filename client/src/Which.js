@@ -17,7 +17,8 @@ export default class Which extends React.Component {
       showUser,
       logoutAction,
       setContents,
-      editProfileImg
+      editProfileImg,
+      inputNewContent
     } = this.props;
     return what === "login" ? (
       <Appbar
@@ -30,6 +31,7 @@ export default class Which extends React.Component {
         setContents={setContents}
         showLogin={showLogin}
         editProfileImg={editProfileImg}
+        inputNewContent={inputNewContent}
       />
     ) : what === "join" ? (
       <Join showLogin={showLogin} />

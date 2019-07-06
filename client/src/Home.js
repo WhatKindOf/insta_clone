@@ -76,10 +76,7 @@ class Home extends React.Component {
                                 alt="first"
                               />
                             ) : (
-                              <Image
-                                src={require("./images/one.png")}
-                                alt="first"
-                              />
+                              <Image src={c.contentImg} alt="first" />
                             )}
                           </Button>
                         </ImageDiv>
@@ -97,20 +94,23 @@ class Home extends React.Component {
               : ""}
           </Main>
         </Div>
-        <Dialog display={this.state.open}>
+        <StyledDialog display={this.state.open}>
           <CloseButton onClick={this.handleClickClose}>
             <img src={require("./images/close.png")} alt="close" />
           </CloseButton>
-          <DialogDiv>
-            <DialogImgDiv>
+          <StyledDialogDiv>
+            <StyledDialogImgDiv>
               {this.state.contentImg === null ? (
-                <DialogImg src={require("./images/basic.png")} alt="img" />
+                <StyledDialogImg
+                  src={require("./images/basic.png")}
+                  alt="img"
+                />
               ) : (
-                <DialogImg src={require("./images/first.png")} alt="img" />
+                <StyledDialogImg src={this.state.contentImg} alt="img" />
               )}
-            </DialogImgDiv>
-            <DialogContentDiv>
-              <DialogContentUpperDiv>
+            </StyledDialogImgDiv>
+            <StyledDialogContentDiv>
+              <StyledDialogContentUpperDiv>
                 <ProfileImgDiv size="small">
                   {this.state.profileImg === null ? (
                     <ProfileImg
@@ -121,7 +121,7 @@ class Home extends React.Component {
                   ) : (
                     <ProfileImg
                       size="small"
-                      src={require("./images/profile.png")}
+                      src={this.state.profileImg}
                       alt="img"
                     />
                   )}
@@ -129,8 +129,8 @@ class Home extends React.Component {
                 <ProfileInfoDiv size="small">
                   <Span size="small">{this.state.nickname}</Span>
                 </ProfileInfoDiv>
-              </DialogContentUpperDiv>
-              <DialogContentMidDiv>
+              </StyledDialogContentUpperDiv>
+              <StyledDialogContentMidDiv>
                 <ReplyContainer>
                   <ProfileImgDiv size="small">
                     <ProfileImg
@@ -151,17 +151,17 @@ class Home extends React.Component {
                     </Span>
                   </ReplyDiv>
                 </ReplyContainer>
-              </DialogContentMidDiv>
-              <DialogContentLowerDiv>
+              </StyledDialogContentMidDiv>
+              <StyledDialogContentLowerDiv>
                 <Input
                   type="text"
                   name="reply"
                   placeholder="댓글을 입력하세요."
                 />
-              </DialogContentLowerDiv>
-            </DialogContentDiv>
-          </DialogDiv>
-        </Dialog>
+              </StyledDialogContentLowerDiv>
+            </StyledDialogContentDiv>
+          </StyledDialogDiv>
+        </StyledDialog>
       </Fragment>
     );
   }
@@ -184,7 +184,7 @@ const ReplyDiv = styled.div`
   align-items: flex-start;
 `;
 
-const Dialog = styled.div`
+const StyledDialog = styled.div`
   z-index: 1;
   position: absolute;
   top: 0;
@@ -212,7 +212,7 @@ const CloseButton = styled.button`
   right: 20px;
 `;
 
-const DialogDiv = styled.div`
+const StyledDialogDiv = styled.div`
   width: 95%;
   height: 55%;
   max-height: 600px;
@@ -220,19 +220,19 @@ const DialogDiv = styled.div`
   display: flex;
 `;
 
-const DialogImgDiv = styled.div`
+const StyledDialogImgDiv = styled.div`
   width: 64%;
   height: auto;
   max-width: 600px;
   background-color: #000000;
 `;
 
-const DialogImg = styled.img`
+const StyledDialogImg = styled.img`
   width: 100%;
   height: 100%;
 `;
 
-const DialogContentDiv = styled.div`
+const StyledDialogContentDiv = styled.div`
   width: 36%;
   max-width: 600px;
   background-color: white;
@@ -242,14 +242,14 @@ const DialogContentDiv = styled.div`
   align-items: center;
 `;
 
-const DialogContentUpperDiv = styled.div`
+const StyledDialogContentUpperDiv = styled.div`
   width: 100%;
   height: 15%;
   display: flex;
   border-bottom: 1px solid rgba(230, 230, 230);
 `;
 
-const DialogContentMidDiv = styled.div`
+const StyledDialogContentMidDiv = styled.div`
   width: 100%;
   height: 75%;
   background-color: #fafafa;
@@ -263,7 +263,7 @@ const DialogContentMidDiv = styled.div`
   }
 `;
 
-const DialogContentLowerDiv = styled.div`
+const StyledDialogContentLowerDiv = styled.div`
   width: 100%;
   height: 10%;
 `;

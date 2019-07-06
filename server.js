@@ -117,4 +117,34 @@ app.post("/api/join", (req, res) => {
   });
 });
 
+app.post("/api/getContentID", (req, res) => {
+  let sql = "SELECT MAX(contentID) contentID FROM CONTENTS WHERE email=?";
+
+  let email = req.body.email;
+  connection.query(sql, email, (err, rows, fields) => {
+    res.send(rows);
+  });
+});
+
+const uploadContentImg = multer({ dest: "./upload/contentImg" });
+app.use("/contentImg", express.static("./upload/contentImg"));
+
+app.post(
+  "/api/writeContent",
+  uploadContentImg.single("contentImg"),
+  (req, res) => {
+    sql = "INSERT INTO CONTENTS VALUES (?, ?, ?, ?, ?)";
+
+    let email = req.body.email;
+    let contentID = req.body.contentID;
+    let contentImg = "/contentImg/" + req.file.filename;
+    let content = req.body.content;
+    let contentDate = req.body.contentDate;
+    params = [contentID, email, contentImg, content, contentDate];
+    connection.query(sql, params, (err, rows, fields) => {
+      res.send(params);
+    });
+  }
+);
+
 app.listen(port, () => console.log(`Listening on port ${port}`));
