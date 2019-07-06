@@ -21,7 +21,8 @@ export default class Which extends React.Component {
       inputNewContent,
       setReply,
       reply,
-      resetReply
+      resetReply,
+      inputNewReply
     } = this.props;
     return what === "login" ? (
       <Appbar
@@ -38,6 +39,7 @@ export default class Which extends React.Component {
         setReply={setReply}
         reply={reply}
         resetReply={resetReply}
+        inputNewReply={inputNewReply}
       />
     ) : what === "join" ? (
       <Join showLogin={showLogin} />

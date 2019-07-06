@@ -97,12 +97,65 @@ class User extends React.Component {
     return post(url, data);
   };
 
+  getCurrentDate = () => {
+    const date = new Date();
+    const DayOfWeek = [
+      "일요일",
+      "월요일",
+      "화요일",
+      "수요일",
+      "목요일",
+      "금요일",
+      "토요일"
+    ];
+    const currentDate =
+      date.getFullYear() +
+      "년 " +
+      (date.getMonth() + 1) +
+      "월 " +
+      date.getDate() +
+      "일 " +
+      DayOfWeek[date.getDay()] +
+      " " +
+      date.getHours() +
+      "시";
+
+    return currentDate;
+  };
+
+  inputReply = replyContent => {
+    this.inputReplyAction(replyContent)
+      .then(response => {
+        console.log(response);
+      })
+      .catch(err => console.log("err : " + err));
+  };
+
+  inputReplyAction = async replyContent => {
+    const currentDate = await this.getCurrentDate();
+
+    const url = "/api/inputReply";
+    const data = {
+      contentID: this.state.contentID,
+      contentEmail: this.props.account.email,
+      replyNickname: this.props.account.nickname,
+      replyImg: this.props.account.profileImg,
+      replyContent: replyContent,
+      replyDate: currentDate
+    };
+
+    this.props.inputNewReply(data);
+
+    return post(url, data);
+  };
+
   handleClickOpen = (contentImg, content, contentDate, contentID) => {
     this.setState({
       open: "flex",
       contentImg: contentImg,
       content: content,
-      contentDate: contentDate
+      contentDate: contentDate,
+      contentID: contentID
     });
     this.getReply(contentID);
   };
@@ -397,6 +450,11 @@ class User extends React.Component {
                   type="text"
                   name="reply"
                   placeholder="댓글을 입력하세요."
+                  onKeyPress={e => {
+                    if (e.key === "Enter") {
+                      this.inputReply(e.target.value);
+                    }
+                  }}
                 />
               </DialogContentLowerDiv>
             </DialogContentDiv>

@@ -159,4 +159,27 @@ app.post("/api/getReply", (req, res) => {
   });
 });
 
+app.post("/api/inputReply", (req, res) => {
+  let sql = "INSERT INTO REPLY VALUES (?, ?, ?, ?, ?, ?)";
+
+  let contentID = req.body.contentID;
+  let contentEmail = req.body.contentEmail;
+  let replyNickname = req.body.replyNickname;
+  let replyImg = req.body.replyImg;
+  let replyContent = req.body.replyContent;
+  let replyDate = req.body.replyDate;
+
+  let params = [
+    contentID,
+    contentEmail,
+    replyNickname,
+    replyImg,
+    replyContent,
+    replyDate
+  ];
+  connection.query(sql, params, (err, rows, fields) => {
+    res.send(err);
+  });
+});
+
 app.listen(port, () => console.log(`Listening on port ${port}`));

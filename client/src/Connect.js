@@ -29,7 +29,8 @@ function mapDispatchToProps(dispatch) {
       dispatch
     ),
     setReply: bindActionCreators(actionCreators.setReply, dispatch),
-    resetReply: bindActionCreators(actionCreators.resetReply, dispatch)
+    resetReply: bindActionCreators(actionCreators.resetReply, dispatch),
+    inputNewReply: bindActionCreators(actionCreators.inputNewReply, dispatch)
   };
 }
 

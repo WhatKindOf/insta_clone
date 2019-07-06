@@ -11,6 +11,7 @@ const EDIT_PROFILEIMG = "EDIT_PROFILEIMG";
 const INPUT_NEWCONTENT = "INPUT_NEWCONTENT";
 const SET_REPLY = "SET_REPLY";
 const RESET_REPLY = "RESET_REPLY";
+const INPUT_NEWREPLY = "INPUT_NEWREPLY";
 
 // Action Creators
 
@@ -85,6 +86,13 @@ function resetReply() {
   };
 }
 
+function inputNewReply(newReply) {
+  return {
+    type: INPUT_NEWREPLY,
+    newReply: newReply
+  };
+}
+
 // Reducer
 
 const initialState = {
@@ -126,6 +134,8 @@ function reducer(state = initialState, action) {
       return applySetReply(state, action.reply);
     case RESET_REPLY:
       return applyResetReply(state);
+    case INPUT_NEWREPLY:
+      return applyInputNewReply(state, action.newReply);
     default:
       return state;
   }
@@ -226,6 +236,13 @@ function applyResetReply(state) {
   };
 }
 
+function applyInputNewReply(state, newReply) {
+  return {
+    ...state,
+    reply: [...state.reply, newReply]
+  };
+}
+
 // export Action Creators
 
 const actionCreators = {
@@ -239,7 +256,8 @@ const actionCreators = {
   editProfileImg,
   inputNewContent,
   setReply,
-  resetReply
+  resetReply,
+  inputNewReply
 };
 
 export { actionCreators };

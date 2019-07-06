@@ -414,6 +414,7 @@ class Appbar extends React.Component {
             setReply={this.props.setReply}
             reply={this.props.reply}
             resetReply={this.props.resetReply}
+            inputNewReply={this.props.inputNewReply}
           />
         )}
 
