@@ -1,17 +1,17 @@
 import React, { Fragment } from "react";
 import styled, { css } from "styled-components";
+import { post } from "axios";
 
 class Home extends React.Component {
   state = {
     open: "none",
-    date: new Date(),
-    year: "",
-    month: "",
-    day: "",
-    hour: "",
     contentImg: "",
+    content: "",
     profileImg: "",
-    nickname: ""
+    nickname: "",
+    contentDate: "",
+    contentID: "",
+    email: ""
   };
 
   getContents = () => {
@@ -28,13 +28,111 @@ class Home extends React.Component {
     return body;
   };
 
-  handleClickOpen = (contentImg, profileImg, nickname) => {
+  removeDuplicates = objectArray => {
+    let temp = {};
+
+    for (let i = objectArray.length - 1; i >= 0; i--) {
+      let so = JSON.stringify(objectArray[i]);
+
+      if (temp[so]) {
+        objectArray.splice(i, 1);
+      } else {
+        temp[so] = true;
+      }
+    }
+    return objectArray;
+  };
+
+  getReply = (contentID, email) => {
+    this.getReplyAction(contentID, email)
+      .then(res => {
+        const arr = this.removeDuplicates(res.data);
+        this.props.setReply(arr);
+      })
+      .catch(err => console.log("err : " + err));
+  };
+
+  getReplyAction = (contentID, email) => {
+    const url = "/api/getReply";
+    const data = {
+      contentEmail: email,
+      contentID: contentID
+    };
+    return post(url, data);
+  };
+
+  getCurrentDate = () => {
+    const date = new Date();
+    const DayOfWeek = [
+      "일요일",
+      "월요일",
+      "화요일",
+      "수요일",
+      "목요일",
+      "금요일",
+      "토요일"
+    ];
+    const currentDate =
+      date.getFullYear() +
+      "년 " +
+      (date.getMonth() + 1) +
+      "월 " +
+      date.getDate() +
+      "일 " +
+      DayOfWeek[date.getDay()] +
+      " " +
+      date.getHours() +
+      "시";
+
+    return currentDate;
+  };
+
+  inputReply = replyContent => {
+    this.inputReplyAction(replyContent)
+      .then(response => {
+        console.log(response);
+      })
+      .catch(err => console.log("err : " + err));
+  };
+
+  inputReplyAction = async replyContent => {
+    const currentDate = await this.getCurrentDate();
+
+    const url = "/api/inputReply";
+    const data = {
+      contentID: this.state.contentID,
+      contentEmail: this.state.email,
+      replyNickname: this.props.account.nickname,
+      replyImg: this.props.account.profileImg,
+      replyContent: replyContent,
+      replyDate: currentDate
+    };
+
+    this.props.inputNewReply(data);
+
+    return post(url, data);
+  };
+
+  handleClickOpen = (
+    contentImg,
+    content,
+    profileImg,
+    nickname,
+    contentDate,
+    contentID,
+    email
+  ) => {
     this.setState({
       open: "flex",
       contentImg: contentImg,
+      content: content,
       profileImg: profileImg,
-      nickname: nickname
+      nickname: nickname,
+      contentDate: contentDate,
+      contentID: contentID,
+      email: email
     });
+    this.getReply(contentID, email);
   };
 
   handleClickClose = () => {
@@ -42,8 +140,13 @@ class Home extends React.Component {
       open: "none",
       contentImg: "",
       profileImg: "",
-      nickname: ""
+      nickname: "",
+      content: "",
+      contentDate: "",
+      contentID: "",
+      email: ""
     });
+    this.props.resetReply();
   };
 
   componentDidMount() {
@@ -65,8 +168,12 @@ class Home extends React.Component {
                             onClick={() =>
                               this.handleClickOpen(
                                 c.contentImg,
+                                c.content,
                                 c.profileImg,
-                                c.nickname
+                                c.nickname,
+                                c.contentDate,
+                                c.contentID,
+                                c.email
                               )
                             }
                           >
@@ -100,63 +207,89 @@ class Home extends React.Component {
           </CloseButton>
           <StyledDialogDiv>
             <StyledDialogImgDiv>
-              {this.state.contentImg === null ? (
+              {this.state.contentImg ? (
                 <StyledDialogImg
-                  src={require("./images/basic.png")}
-                  alt="img"
+                  src={this.state.contentImg}
+                  alt="content_img"
                 />
               ) : (
-                <StyledDialogImg src={this.state.contentImg} alt="img" />
+                <StyledDialogImg
+                  src={require("./images/basic.png")}
+                  alt="content_img"
+                />
               )}
             </StyledDialogImgDiv>
             <StyledDialogContentDiv>
               <StyledDialogContentUpperDiv>
-                <ProfileImgDiv size="small">
-                  {this.state.profileImg === null ? (
-                    <ProfileImg
-                      size="small"
-                      src={require("./images/default.png")}
-                      alt="img"
-                    />
-                  ) : (
-                    <ProfileImg
-                      size="small"
-                      src={this.state.profileImg}
-                      alt="img"
-                    />
-                  )}
-                </ProfileImgDiv>
-                <ProfileInfoDiv size="small">
-                  <Span size="small">{this.state.nickname}</Span>
-                </ProfileInfoDiv>
+                <UpperAccountDiv>
+                  <ProfileImgDiv size="small">
+                    {this.state.profileImg === null ? (
+                      <ProfileImg
+                        size="small"
+                        src={require("./images/default.png")}
+                        alt="profile_img"
+                      />
+                    ) : (
+                      <ProfileImg
+                        size="small"
+                        src={this.state.profileImg}
+                        alt="profile_img"
+                      />
+                    )}
+                  </ProfileImgDiv>
+                  <ProfileInfoDiv size="small">
+                    <Span size="small">{this.state.nickname}</Span>
+                  </ProfileInfoDiv>
+                </UpperAccountDiv>
+                <UpperContentDiv>
+                  <ContentsDiv>
+                    <Span size="reply">{this.state.content}</Span>
+                  </ContentsDiv>
+                  <DateDiv>
+                    <Span size="replyDate">{this.state.contentDate}</Span>
+                  </DateDiv>
+                </UpperContentDiv>
               </StyledDialogContentUpperDiv>
               <StyledDialogContentMidDiv>
-                <ReplyContainer>
-                  <ProfileImgDiv size="small">
-                    <ProfileImg
-                      size="small"
-                      src={require("./images/first.png")}
-                      alt="img"
-                    />
-                  </ProfileImgDiv>
-                  <ReplyDiv>
-                    <Span size="replyID">dudumi</Span>
-                    <Span size="reply">사진 맘에 들어요</Span>
-                    <Span size="replyDate">
-                      {`${this.state.date.getFullYear()}년 
-          ${this.state.date.getMonth() + 1}월
-          ${this.state.date.getDay()}일
-          ${this.state.date.getHours()}시
-          `}
-                    </Span>
-                  </ReplyDiv>
-                </ReplyContainer>
+                {this.props.reply.length !== 0
+                  ? this.props.reply.map(r => {
+                      return (
+                        <ReplyContainer>
+                          <ProfileImgDiv size="small">
+                            {r.replyImg === null ? (
+                              <ProfileImg
+                                size="small"
+                                src={require("./images/default.png")}
+                                alt="img"
+                              />
+                            ) : (
+                              <ProfileImg
+                                size="small"
+                                src={r.replyImg}
+                                alt="img"
+                              />
+                            )}
+                          </ProfileImgDiv>
+                          <ReplyDiv>
+                            <Span size="replyID">{r.replyNickname}</Span>
+                            <Span size="reply">{r.replyContent}</Span>
+                            <Span size="replyDate">{r.replyDate}</Span>
+                          </ReplyDiv>
+                        </ReplyContainer>
+                      );
+                    })
+                  : ""}
               </StyledDialogContentMidDiv>
               <StyledDialogContentLowerDiv>
                 <Input
                   type="text"
                   name="reply"
                   placeholder="댓글을 입력하세요."
+                  onKeyPress={e => {
+                    if (e.key === "Enter") {
+                      this.inputReply(e.target.value);
+                    }
+                  }}
                 />
               </StyledDialogContentLowerDiv>
             </StyledDialogContentDiv>
@@ -244,9 +377,41 @@ const StyledDialogContentDiv = styled.div`
 
 const StyledDialogContentUpperDiv = styled.div`
   width: 100%;
-  height: 15%;
+  height: 30%;
+  display: flex;
+  flex-direction: column;
+  border-bottom: 1px solid rgba(230, 230, 230);
+`;
+
+const UpperAccountDiv = styled.div`
+  width: 100%;
+  height: 50%;
   display: flex;
   border-bottom: 1px solid rgba(230, 230, 230);
+`;
+
+const UpperContentDiv = styled.div`
+  width: 100%;
+  height: 50%;
+  display: flex;
+  flex-direction: column;
+`;
+
+const ContentsDiv = styled.div`
+  width: 97%;
+  height: 64%;
+  padding: 5px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
+
+const DateDiv = styled.div`
+  width: 100%;
+  height: 15%;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
 `;
 
 const StyledDialogContentMidDiv = styled.div`

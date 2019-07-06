@@ -172,6 +172,10 @@ function applyShowHome(state) {
       contents: [],
       homeOrUser: "default"
     };
+  } else {
+    return {
+      ...state
+    };
   }
 }
 
@@ -181,6 +185,10 @@ function applyShowUser(state) {
       ...state,
       contents: [],
       homeOrUser: "user"
+    };
+  } else {
+    return {
+      ...state
     };
   }
 }

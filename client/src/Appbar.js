@@ -404,6 +404,10 @@ class Appbar extends React.Component {
             setContents={this.props.setContents}
             account={this.props.account}
             contents={this.props.contents}
+            setReply={this.props.setReply}
+            reply={this.props.reply}
+            resetReply={this.props.resetReply}
+            inputNewReply={this.props.inputNewReply}
           />
         ) : (
           <User

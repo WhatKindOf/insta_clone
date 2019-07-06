@@ -37,7 +37,8 @@ class User extends React.Component {
     editOpen: false,
     file: "",
     fileName: "",
-    imgSrc: ""
+    imgSrc: "",
+    email: ""
   };
 
   handleFileChange = e => {
@@ -137,7 +138,7 @@ class User extends React.Component {
     const url = "/api/inputReply";
     const data = {
       contentID: this.state.contentID,
-      contentEmail: this.props.account.email,
+      contentEmail: this.state.email,
       replyNickname: this.props.account.nickname,
       replyImg: this.props.account.profileImg,
       replyContent: replyContent,
@@ -149,13 +150,14 @@ class User extends React.Component {
     return post(url, data);
   };
 
-  handleClickOpen = (contentImg, content, contentDate, contentID) => {
+  handleClickOpen = (contentImg, content, contentDate, contentID, email) => {
     this.setState({
       open: "flex",
       contentImg: contentImg,
       content: content,
       contentDate: contentDate,
-      contentID: contentID
+      contentID: contentID,
+      email: email
     });
     this.getReply(contentID);
   };
@@ -317,7 +319,7 @@ class User extends React.Component {
                   />
                 ) : (
                   <ProfileImg
-                    src={require("./images/profile.png")}
+                    src={require("./images/default.png")}
                     alt="profile_img"
                   />
                 )}
@@ -348,7 +350,8 @@ class User extends React.Component {
                               c.contentImg,
                               c.content,
                               c.contentDate,
-                              c.contentID
+                              c.contentID,
+                              c.email
                             )
                           }
                         >
@@ -388,7 +391,7 @@ class User extends React.Component {
               <DialogContentUpperDiv>
                 <UpperAccountDiv>
                   <ProfileImgDiv size="small">
-                    {this.props.account.profileImg ? (
+                    {this.props.account.profileImg !== null ? (
                       <ProfileImg
                         size="small"
                         src={this.props.account.profileImg}
@@ -897,6 +900,7 @@ const ImageDiv = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
+  margin-bottom: 25px;
 `;
 
 const Image = styled.img`
