@@ -1,0 +1,17 @@
+{
+  "files": {
+    "main.css": "/insta-clone/static/css/main.46c83dec.chunk.css",
+    "main.js": "/insta-clone/static/js/main.449f2c5b.chunk.js",
+    "main.js.map": "/insta-clone/static/js/main.449f2c5b.chunk.js.map",
+    "runtime~main.js": "/insta-clone/static/js/runtime~main.7f5d4aba.js",
+    "runtime~main.js.map": "/insta-clone/static/js/runtime~main.7f5d4aba.js.map",
+    "static/js/2.f95e788b.chunk.js": "/insta-clone/static/js/2.f95e788b.chunk.js",
+    "static/js/2.f95e788b.chunk.js.map": "/insta-clone/static/js/2.f95e788b.chunk.js.map",
+    "index.html": "/insta-clone/index.html",
+    "precache-manifest.cc70caa83585e64b4a0ca2a322946007.js": "/insta-clone/precache-manifest.cc70caa83585e64b4a0ca2a322946007.js",
+    "service-worker.js": "/insta-clone/service-worker.js",
+    "static/css/main.46c83dec.chunk.css.map": "/insta-clone/static/css/main.46c83dec.chunk.css.map",
+    "static/media/default.png": "/insta-clone/static/media/default.8fcbccc7.png",
+    "static/media/profileBackground.png": "/insta-clone/static/media/profileBackground.e5948702.png"
+  }
+}
