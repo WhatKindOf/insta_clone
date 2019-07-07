@@ -1,6 +1,30 @@
 import React, { Fragment } from "react";
 import styled, { css } from "styled-components";
 import { post } from "axios";
+import { withStyles } from "@material-ui/core/styles";
+import Dialog from "@material-ui/core/Dialog";
+import DialogTitle from "@material-ui/core/DialogTitle";
+import DialogActions from "@material-ui/core/DialogActions";
+import Button from "@material-ui/core/Button";
+
+const styles = theme => ({
+  center: {
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center"
+  },
+  between: {
+    display: "flex",
+    justifyContent: "space-around",
+    alignItems: "center"
+  },
+  left: {
+    marginLeft: "3em",
+    color: "red",
+    fontSize: 12,
+    fontWeight: 600
+  }
+});
 
 class Home extends React.Component {
   state = {
@@ -10,8 +34,14 @@ class Home extends React.Component {
     profileImg: "",
     nickname: "",
     contentDate: "",
+    email: "",
+    deleteReply: false,
     contentID: "",
-    email: ""
+    contentEmail: "",
+    replyNickname: "",
+    replyImg: "",
+    replyContent: "",
+    replyDate: ""
   };
 
   getContents = () => {
@@ -28,26 +58,26 @@ class Home extends React.Component {
     return body;
   };
 
-  removeDuplicates = objectArray => {
-    let temp = {};
+  // removeDuplicates = objectArray => {
+  //   let temp = {};
 
-    for (let i = objectArray.length - 1; i >= 0; i--) {
-      let so = JSON.stringify(objectArray[i]);
+  //   for (let i = objectArray.length - 1; i >= 0; i--) {
+  //     let so = JSON.stringify(objectArray[i]);
 
-      if (temp[so]) {
-        objectArray.splice(i, 1);
-      } else {
-        temp[so] = true;
-      }
-    }
-    return objectArray;
-  };
+  //     if (temp[so]) {
+  //       objectArray.splice(i, 1);
+  //     } else {
+  //       temp[so] = true;
+  //     }
+  //   }
+  //   return objectArray;
+  // };
 
   getReply = (contentID, email) => {
     this.getReplyAction(contentID, email)
       .then(res => {
-        const arr = this.removeDuplicates(res.data);
-        this.props.setReply(arr);
+        //const arr = this.removeDuplicates(res.data);
+        this.props.setReply(res.data);
       })
       .catch(err => console.log("err : " + err));
   };
@@ -149,11 +179,62 @@ class Home extends React.Component {
     this.props.resetReply();
   };
 
+  closeDialog = () => {
+    this.setState({
+      deleteReply: false
+    });
+  };
+
+  deleteReply = () => {
+    this.deleteReplyAction()
+      .then(response => {
+        if (response.data.code === undefined) {
+          this.closeDialog();
+          this.getReply(this.state.contentID);
+        }
+      })
+      .catch(err => console.log("err : " + err));
+  };
+
+  deleteReplyAction = () => {
+    const url = "/api/deleteReply";
+    const data = {
+      contentID: this.state.contentID,
+      contentEmail: this.state.contentEmail,
+      replyNickname: this.state.replyNickname,
+      replyImg: this.state.replyImg,
+      replyContent: this.state.replyContent,
+      replyDate: this.state.replyDate
+    };
+
+    return post(url, data);
+  };
+
+  openDeleteReply = (
+    contentID,
+    contentEmail,
+    replyNickname,
+    replyImg,
+    replyContent,
+    replyDate
+  ) => {
+    this.setState({
+      deleteReply: true,
+      contentID: contentID,
+      contentEmail: contentEmail,
+      replyNickname: replyNickname,
+      replyImg: replyImg,
+      replyContent: replyContent,
+      replyDate: replyDate
+    });
+  };
+
   componentDidMount() {
     this.getContents();
   }
 
   render() {
+    const { classes } = this.props;
     return (
       <Fragment>
         <Div>
@@ -164,7 +245,7 @@ class Home extends React.Component {
                     <Container>
                       <UpperSide>
                         <ImageDiv>
-                          <Button
+                          <StyledButton
                             onClick={() =>
                               this.handleClickOpen(
                                 c.contentImg,
@@ -185,7 +266,7 @@ class Home extends React.Component {
                             ) : (
                               <Image src={c.contentImg} alt="first" />
                             )}
-                          </Button>
+                          </StyledButton>
                         </ImageDiv>
                         <WhoWhen>
                           <Span kind="title">{c.nickname}</Span>
@@ -273,7 +354,27 @@ class Home extends React.Component {
                           <ReplyDiv>
                             <Span size="replyID">{r.replyNickname}</Span>
                             <Span size="reply">{r.replyContent}</Span>
-                            <Span size="replyDate">{r.replyDate}</Span>
+                            <div className={classes.between}>
+                              <Span size="replyDate">{r.replyDate}</Span>
+                              {r.replyID === this.props.account.email ? (
+                                <StyledButton
+                                  onClick={() =>
+                                    this.openDeleteReply(
+                                      r.contentID,
+                                      r.contentEmail,
+                                      r.replyNickname,
+                                      r.replyImg,
+                                      r.replyContent,
+                                      r.replyDate
+                                    )
+                                  }
+                                >
+                                  <span className={classes.left}>삭제</span>
+                                </StyledButton>
+                              ) : (
+                                ""
+                              )}
+                            </div>
                           </ReplyDiv>
                         </ReplyContainer>
                       );
@@ -295,6 +396,28 @@ class Home extends React.Component {
             </StyledDialogContentDiv>
           </StyledDialogDiv>
         </StyledDialog>
+
+        <Dialog open={this.state.deleteReply}>
+          <DialogTitle className={classes.center}>
+            해당 댓글을 삭제하시겠습니까?
+          </DialogTitle>
+          <DialogActions className={classes.between}>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={this.deleteReply}
+            >
+              삭제
+            </Button>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={this.closeDialog}
+            >
+              취소
+            </Button>
+          </DialogActions>
+        </Dialog>
       </Fragment>
     );
   }
@@ -444,7 +567,7 @@ const Input = styled.input`
   }
 `;
 
-const Button = styled.button`
+const StyledButton = styled.button`
   border: none;
   background-color: transparent;
   cursor: pointer;
@@ -619,4 +742,4 @@ const LowerSide = styled.div`
   align-items: center;
 `;
 
-export default Home;
+export default withStyles(styles)(Home);

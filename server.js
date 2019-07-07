@@ -72,6 +72,29 @@ app.post("/api/deleteUser", (req, res) => {
   });
 });
 
+app.post("/api/deleteReply", (req, res) => {
+  let sql =
+    "DELETE FROM REPLY WHERE contentID = ? and contentEmail = ? and replyNickname = ? and replyImg = ? and replyContent = ? and replyDate = ?";
+
+  let contentID = req.body.contentID;
+  let contentEmail = req.body.contentEmail;
+  let replyNickname = req.body.replyNickname;
+  let replyImg = req.body.replyImg;
+  let replyContent = req.body.replyContent;
+  let replyDate = req.body.replyDate;
+  let params = [
+    contentID,
+    contentEmail,
+    replyNickname,
+    replyImg,
+    replyContent,
+    replyDate
+  ];
+  connection.query(sql, params, (err, rows, fields) => {
+    res.send(err);
+  });
+});
+
 app.post("/api/search", (req, res) => {
   let sql =
     "SELECT contentID, CONTENTS.email, contentImg, content, contentDate, nickname, profileImg FROM CONTENTS, USER WHERE CONTENTS.email = USER.email AND (nickname LIKE ? OR content LIKE ?)";
@@ -149,7 +172,7 @@ app.post(
 
 app.post("/api/getReply", (req, res) => {
   let sql =
-    "SELECT replyNickname, replyImg, replyContent, replyDate FROM CONTENTS, REPLY WHERE REPLY.contentEmail = ? AND REPLY.contentID = ?";
+    "SELECT DISTINCT REPLY.contentID, REPLY.contentEmail, replyID, replyNickname, replyImg, replyContent, replyDate FROM CONTENTS, REPLY WHERE REPLY.contentEmail = ? AND REPLY.contentID = ?";
 
   let contentEmail = req.body.contentEmail;
   let contentID = req.body.contentID;

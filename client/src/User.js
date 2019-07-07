@@ -21,6 +21,12 @@ const styles = theme => ({
   },
   hidden: {
     display: "none"
+  },
+  left: {
+    marginLeft: "3em",
+    color: "red",
+    fontSize: 12,
+    fontWeight: 600
   }
 });
 
@@ -32,13 +38,19 @@ class User extends React.Component {
     content: "",
     contentDate: "",
     delete: false,
-    contentID: "",
     edit: "none",
     editOpen: false,
     file: "",
     fileName: "",
     imgSrc: "",
-    email: ""
+    email: "",
+    deleteReply: false,
+    contentID: "",
+    contentEmail: "",
+    replyNickname: "",
+    replyImg: "",
+    replyContent: "",
+    replyDate: ""
   };
 
   handleFileChange = e => {
@@ -65,26 +77,26 @@ class User extends React.Component {
     return post(url, data);
   };
 
-  removeDuplicates = objectArray => {
-    let temp = {};
+  // removeDuplicates = objectArray => {
+  //   let temp = {};
 
-    for (let i = objectArray.length - 1; i >= 0; i--) {
-      let so = JSON.stringify(objectArray[i]);
+  //   for (let i = objectArray.length - 1; i >= 0; i--) {
+  //     let so = JSON.stringify(objectArray[i]);
 
-      if (temp[so]) {
-        objectArray.splice(i, 1);
-      } else {
-        temp[so] = true;
-      }
-    }
-    return objectArray;
-  };
+  //     if (temp[so]) {
+  //       objectArray.splice(i, 1);
+  //     } else {
+  //       temp[so] = true;
+  //     }
+  //   }
+  //   return objectArray;
+  // };
 
   getReply = contentID => {
     this.getReplyAction(contentID)
       .then(res => {
-        const arr = this.removeDuplicates(res.data);
-        this.props.setReply(arr);
+        //const arr = this.removeDuplicates(res.data);
+        this.props.setReply(res.data);
       })
       .catch(err => console.log("err : " + err));
   };
@@ -194,7 +206,8 @@ class User extends React.Component {
 
   closeDialog = () => {
     this.setState({
-      delete: false
+      delete: false,
+      deleteReply: false
     });
   };
 
@@ -280,6 +293,50 @@ class User extends React.Component {
       file: null,
       fileName: "",
       editOpen: false
+    });
+  };
+
+  deleteReply = () => {
+    this.deleteReplyAction()
+      .then(response => {
+        if (response.data.code === undefined) {
+          this.closeDialog();
+          this.getReply(this.state.contentID);
+        }
+      })
+      .catch(err => console.log("err : " + err));
+  };
+
+  deleteReplyAction = () => {
+    const url = "/api/deleteReply";
+    const data = {
+      contentID: this.state.contentID,
+      contentEmail: this.state.contentEmail,
+      replyNickname: this.state.replyNickname,
+      replyImg: this.state.replyImg,
+      replyContent: this.state.replyContent,
+      replyDate: this.state.replyDate
+    };
+
+    return post(url, data);
+  };
+
+  openDeleteReply = (
+    contentID,
+    contentEmail,
+    replyNickname,
+    replyImg,
+    replyContent,
+    replyDate
+  ) => {
+    this.setState({
+      deleteReply: true,
+      contentID: contentID,
+      contentEmail: contentEmail,
+      replyNickname: replyNickname,
+      replyImg: replyImg,
+      replyContent: replyContent,
+      replyDate: replyDate
     });
   };
 
@@ -441,7 +498,27 @@ class User extends React.Component {
                           <ReplyDiv>
                             <Span size="replyID">{r.replyNickname}</Span>
                             <Span size="reply">{r.replyContent}</Span>
-                            <Span size="replyDate">{r.replyDate}</Span>
+                            <div className={classes.between}>
+                              <Span size="replyDate">{r.replyDate}</Span>
+                              {r.replyID === this.props.account.email ? (
+                                <StyledButton
+                                  onClick={() =>
+                                    this.openDeleteReply(
+                                      r.contentID,
+                                      r.contentEmail,
+                                      r.replyNickname,
+                                      r.replyImg,
+                                      r.replyContent,
+                                      r.replyDate
+                                    )
+                                  }
+                                >
+                                  <span className={classes.left}>삭제</span>
+                                </StyledButton>
+                              ) : (
+                                ""
+                              )}
+                            </div>
                           </ReplyDiv>
                         </ReplyContainer>
                       );
@@ -463,6 +540,28 @@ class User extends React.Component {
             </DialogContentDiv>
           </DialogDiv>
         </StyledDialog>
+
+        <Dialog open={this.state.deleteReply}>
+          <DialogTitle className={classes.center}>
+            해당 댓글을 삭제하시겠습니까?
+          </DialogTitle>
+          <DialogActions className={classes.between}>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={this.deleteReply}
+            >
+              삭제
+            </Button>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={this.closeDialog}
+            >
+              취소
+            </Button>
+          </DialogActions>
+        </Dialog>
 
         <Dialog open={this.state.delete}>
           <DialogTitle className={classes.center}>
