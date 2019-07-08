@@ -19,7 +19,6 @@ const styles = theme => ({
     alignItems: "center"
   },
   left: {
-    marginLeft: "3em",
     color: "red",
     fontSize: 12,
     fontWeight: 600
@@ -354,7 +353,7 @@ class Home extends React.Component {
                           <ReplyDiv>
                             <Span size="replyID">{r.replyNickname}</Span>
                             <Span size="reply">{r.replyContent}</Span>
-                            <div className={classes.between}>
+                            <DateDeleteDiv>
                               <Span size="replyDate">{r.replyDate}</Span>
                               {r.replyID === this.props.account.email ? (
                                 <StyledButton
@@ -374,7 +373,7 @@ class Home extends React.Component {
                               ) : (
                                 ""
                               )}
-                            </div>
+                            </DateDeleteDiv>
                           </ReplyDiv>
                         </ReplyContainer>
                       );
@@ -422,6 +421,13 @@ class Home extends React.Component {
     );
   }
 }
+
+const DateDeleteDiv = styled.div`
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+`;
 
 const ReplyContainer = styled.div`
   width: 100%;
