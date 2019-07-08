@@ -150,6 +150,7 @@ class User extends React.Component {
     const data = {
       contentID: this.state.contentID,
       contentEmail: this.state.email,
+      replyID: this.props.account.email,
       replyNickname: this.props.account.nickname,
       replyImg: this.props.account.profileImg,
       replyContent: replyContent,

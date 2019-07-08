@@ -183,10 +183,11 @@ app.post("/api/getReply", (req, res) => {
 });
 
 app.post("/api/inputReply", (req, res) => {
-  let sql = "INSERT INTO REPLY VALUES (?, ?, ?, ?, ?, ?)";
+  let sql = "INSERT INTO REPLY VALUES (?, ?, ?, ?, ?, ?, ?)";
 
   let contentID = req.body.contentID;
   let contentEmail = req.body.contentEmail;
+  let replyID = req.body.replyID;
   let replyNickname = req.body.replyNickname;
   let replyImg = req.body.replyImg;
   let replyContent = req.body.replyContent;
@@ -195,6 +196,7 @@ app.post("/api/inputReply", (req, res) => {
   let params = [
     contentID,
     contentEmail,
+    replyID,
     replyNickname,
     replyImg,
     replyContent,
