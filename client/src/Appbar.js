@@ -183,6 +183,12 @@ class Appbar extends React.Component {
     });
   };
 
+  handleChange = e => {
+    let nextState = {};
+    nextState[e.target.name] = e.target.value;
+    this.setState(nextState);
+  };
+
   handleValueChange = e => {
     if (this.state.backSpace || e.target.textLength <= 50) {
       let nextState = {};
@@ -459,7 +465,7 @@ class Appbar extends React.Component {
               type="password"
               name="password"
               value={this.state.password}
-              onChange={this.handleValueChange}
+              onChange={this.handleChange}
             />
           </DialogContent>
           <DialogActions className={classes.between}>
