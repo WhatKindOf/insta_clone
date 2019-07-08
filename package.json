@@ -1,21 +1,21 @@
 {
   "name": "insta_clone",
   "version": "1.0.0",
+  "dependencies": {
+    "axios": "^0.19.0",
+    "body-parser": "^1.19.0",
+    "express": "^4.17.1",
+    "multer": "^1.4.1",
+    "mysql": "^2.17.1",
+    "nodemon": "^1.19.1"
+  },
   "scripts": {
     "client": "cd client && yarn start",
     "server": "nodemon server.js",
     "dev": "concurrently --kill-others-on-fail \"yarn server\" \"yarn client\""
   },
-  "dependencies": {
-    "axios": "^0.19.0",
-    "body-parser": "^1.19.0",
-    "express": "^4.17.1",
-    "gm": "^1.23.1",
-    "multer": "^1.4.1",
-    "mysql": "^2.17.1",
-    "nodemon": "^1.19.1"
-  },
   "devDependencies": {
-    "concurrently": "4.1.1"
+    "concurrently": "4.1.1",
+    "gh-pages": "^2.0.1"
   }
 }

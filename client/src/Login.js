@@ -2,6 +2,18 @@ import React from "react";
 import styled, { css } from "styled-components";
 import { post } from "axios";
 import TextField from "@material-ui/core/TextField";
+import Dialog from "@material-ui/core/Dialog";
+import DialogTitle from "@material-ui/core/DialogTitle";
+import { withStyles } from "@material-ui/core/styles";
+
+const styles = theme => ({
+  center: {
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    color: "red"
+  }
+});
 
 class Login extends React.Component {
   state = {
@@ -10,7 +22,8 @@ class Login extends React.Component {
     nickname: "",
     password: "",
     title: "",
-    profileImg: ""
+    profileImg: "",
+    errorMessage: false
   };
 
   login = () => {
@@ -26,10 +39,13 @@ class Login extends React.Component {
   loginAction = e => {
     e.preventDefault();
     this.login().then(response => {
-      if (JSON.stringify(response.data[0]) === undefined) {
-        console.log("빈 값이다.");
-      } else if (JSON.stringify(response.data.length) === "0") {
-        console.log("빈 값이다.");
+      if (
+        JSON.stringify(response.data[0]) === undefined ||
+        JSON.stringify(response.data.length) === "0"
+      ) {
+        this.setState({
+          errorMessage: true
+        });
       } else {
         const account = {
           email: response.data[0].email,
@@ -48,6 +64,12 @@ class Login extends React.Component {
     });
   };
 
+  handleClickClose = () => {
+    this.setState({
+      errorMessage: false
+    });
+  };
+
   handleValueChange = e => {
     let nextState = {};
     nextState[e.target.name] = e.target.value;
@@ -55,6 +77,7 @@ class Login extends React.Component {
   };
 
   render() {
+    const { classes } = this.props;
     return (
       <Div>
         <MainDiv>
@@ -62,7 +85,7 @@ class Login extends React.Component {
             <Span color="Title">Insta_Clone</Span>
             <TextField
               variant="outlined"
-              label="이메일"
+              label="이메일 또는 아이디"
               type="text"
               name="email"
               value={this.state.email}
@@ -91,6 +114,11 @@ class Login extends React.Component {
           <Span color="Footer">© 2019 INSTA_CLONE</Span>
           <Span color="Footer">Mady by Pyeon Ho Seong</Span>
         </Footer>
+        <Dialog open={this.state.errorMessage} onClose={this.handleClickClose}>
+          <DialogTitle className={classes.center}>
+            입력하신 정보와 일치하는 계정이 없습니다!
+          </DialogTitle>
+        </Dialog>
       </Div>
     );
   }
@@ -195,4 +223,4 @@ const Footer = styled.div`
   align-items: center;
 `;
 
-export default Login;
+export default withStyles(styles)(Login);

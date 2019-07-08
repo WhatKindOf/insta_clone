@@ -2,13 +2,26 @@ import React from "react";
 import { post } from "axios";
 import styled, { css } from "styled-components";
 import TextField from "@material-ui/core/TextField";
+import Dialog from "@material-ui/core/Dialog";
+import DialogTitle from "@material-ui/core/DialogTitle";
+import { withStyles } from "@material-ui/core/styles";
+
+const styles = theme => ({
+  center: {
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    color: "red"
+  }
+});
 
 class Join extends React.Component {
   state = {
     email: "",
     name: "",
     nickname: "",
-    password: ""
+    password: "",
+    errorMessage: false
   };
 
   Join = () => {
@@ -25,19 +38,36 @@ class Join extends React.Component {
 
   JoinAction = e => {
     e.preventDefault();
-    this.Join().then(response => {
-      if (response.data.code === undefined) {
-        this.props.showLogin();
-      } else if (response.data !== null) {
-        console.log(response.data.code);
-        console.log("Error 발생!");
-      }
-    });
+    if (
+      this.state.email !== null &&
+      this.state.name !== null &&
+      this.state.nickname !== null &&
+      this.state.password
+    ) {
+      this.Join().then(response => {
+        if (response.data.code === undefined) {
+          this.props.showLogin();
+        } else if (response.data !== null) {
+          console.log(response.data.code);
+          console.log("Error 발생!");
+        }
+      });
+    } else {
+      this.setState({
+        errorMessage: true
+      });
+    }
     this.setState({
       email: "",
       name: "",
       nickname: "",
       password: ""
+    });
+  };
+
+  handleClickClose = () => {
+    this.setState({
+      errorMessage: false
     });
   };
 
@@ -48,6 +78,7 @@ class Join extends React.Component {
   };
 
   render() {
+    const { classes } = this.props;
     return (
       <Div>
         <MainDiv>
@@ -58,7 +89,7 @@ class Join extends React.Component {
             </Span>
             <TextField
               variant="outlined"
-              label="이메일 주소"
+              label="이메일 주소 또는 아이디"
               type="text"
               name="email"
               value={this.state.email}
@@ -103,6 +134,11 @@ class Join extends React.Component {
           <Span color="Footer">© 2019 INSTA_CLONE</Span>
           <Span color="Footer">Mady by Pyeon Ho Seong</Span>
         </Footer>
+        <Dialog open={this.state.errorMessage} onClose={this.handleClickClose}>
+          <DialogTitle className={classes.center}>
+            모든 항목을 입력하셔야 합니다!
+          </DialogTitle>
+        </Dialog>
       </Div>
     );
   }
@@ -216,4 +252,4 @@ const Footer = styled.div`
   align-items: center;
 `;
 
-export default Join;
+export default withStyles(styles)(Join);
