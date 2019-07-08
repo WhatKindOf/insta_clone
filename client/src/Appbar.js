@@ -73,6 +73,8 @@ class Appbar extends React.Component {
   state = {
     showOutNotice: "none",
     showWriteNotice: "none",
+    showMyPage: "none",
+    showLogoutNotice: "none",
     out: false,
     write: false,
     password: "",
@@ -102,18 +104,6 @@ class Appbar extends React.Component {
     });
   };
 
-  blockWriteNotice = () => {
-    this.setState({
-      showWriteNotice: "block"
-    });
-  };
-
-  noneWriteNotice = () => {
-    this.setState({
-      showWriteNotice: "none"
-    });
-  };
-
   showWriteDialog = () => {
     this.getContentID();
     this.setState({
@@ -132,16 +122,44 @@ class Appbar extends React.Component {
     });
   };
 
-  blockOutNotice = () => {
-    this.setState({
-      showOutNotice: "block"
-    });
+  blockNotice = value => {
+    if (value === "write") {
+      this.setState({
+        showWriteNotice: "block"
+      });
+    } else if (value === "out") {
+      this.setState({
+        showOutNotice: "block"
+      });
+    } else if (value === "mypage") {
+      this.setState({
+        showMyPage: "block"
+      });
+    } else if (value === "logout") {
+      this.setState({
+        showLogoutNotice: "block"
+      });
+    }
   };
 
-  noneOutNotice = () => {
-    this.setState({
-      showOutNotice: "none"
-    });
+  noneNotice = value => {
+    if (value === "write") {
+      this.setState({
+        showWriteNotice: "none"
+      });
+    } else if (value === "out") {
+      this.setState({
+        showOutNotice: "none"
+      });
+    } else if (value === "mypage") {
+      this.setState({
+        showMyPage: "none"
+      });
+    } else if (value === "logout") {
+      this.setState({
+        showLogoutNotice: "none"
+      });
+    }
   };
 
   showOutDialog = () => {
@@ -178,26 +196,17 @@ class Appbar extends React.Component {
 
   getCurrentDate = () => {
     const date = new Date();
-    const DayOfWeek = [
-      "일요일",
-      "월요일",
-      "화요일",
-      "수요일",
-      "목요일",
-      "금요일",
-      "토요일"
-    ];
+    const year = date.getFullYear() + "";
     const currentDate =
-      date.getFullYear() +
+      year.substr(2, 2) +
       "년 " +
       (date.getMonth() + 1) +
       "월 " +
       date.getDate() +
       "일 " +
-      DayOfWeek[date.getDay()] +
-      " " +
       date.getHours() +
-      "시";
+      ":" +
+      date.getMinutes();
 
     return currentDate;
   };
@@ -354,17 +363,25 @@ class Appbar extends React.Component {
               />
             </Search>
             <Right>
-              <StyledButton
-                onClick={this.props.showUser}
-                className={classes.marginRight}
-              >
-                <img src={require("./images/user.png")} alt="user_button" />
-              </StyledButton>
+              <div>
+                <StyledButton
+                  onMouseOver={() => this.blockNotice("mypage")}
+                  onMouseOut={() => this.noneNotice("mypage")}
+                  onClick={this.props.showUser}
+                  className={classes.marginRight}
+                >
+                  <img src={require("./images/user.png")} alt="user_button" />
+                </StyledButton>
+                <UpArrow display={this.state.showMyPage} />
+                <OutNotice display={this.state.showMyPage}>
+                  <OutNoticeSentence>My Page</OutNoticeSentence>
+                </OutNotice>
+              </div>
 
               <div>
                 <StyledButton
-                  onMouseOver={this.blockWriteNotice}
-                  onMouseOut={this.noneWriteNotice}
+                  onMouseOver={() => this.blockNotice("write")}
+                  onMouseOut={() => this.noneNotice("write")}
                   onClick={this.showWriteDialog}
                 >
                   <img
@@ -380,8 +397,8 @@ class Appbar extends React.Component {
 
               <div>
                 <StyledButton
-                  onMouseOver={this.blockOutNotice}
-                  onMouseOut={this.noneOutNotice}
+                  onMouseOver={() => this.blockNotice("out")}
+                  onMouseOut={() => this.noneNotice("out")}
                   onClick={this.showOutDialog}
                 >
                   <img src={require("./images/out.png")} alt="exit_button" />
@@ -392,9 +409,19 @@ class Appbar extends React.Component {
                 </OutNotice>
               </div>
 
-              <StyledButton onClick={this.props.logoutAction}>
-                <img src={require("./images/exit.png")} alt="exit_button" />
-              </StyledButton>
+              <div>
+                <StyledButton
+                  onMouseOver={() => this.blockNotice("logout")}
+                  onMouseOut={() => this.noneNotice("logout")}
+                  onClick={this.props.logoutAction}
+                >
+                  <img src={require("./images/exit.png")} alt="exit_button" />
+                </StyledButton>
+                <UpArrow display={this.state.showLogoutNotice} />
+                <OutNotice display={this.state.showLogoutNotice}>
+                  <OutNoticeSentence>Logout</OutNoticeSentence>
+                </OutNotice>
+              </div>
             </Right>
           </NavigationContentDiv>
         </NavigationDiv>
@@ -609,8 +636,8 @@ const OutNotice = styled.div`
   margin-top: 13px;
   margin-left: -22px;
   border-radius: 9px;
-  z-index: 2;
-  padding: 9px;
+  z-index: 10;
+  padding: 3px;
   ${props => {
     return css`
       display: ${props.display};

@@ -20,8 +20,8 @@ const styles = theme => ({
   },
   left: {
     color: "red",
-    fontSize: 12,
-    fontWeight: 600
+    fontSize: 11,
+    fontWeight: 400
   }
 });
 
@@ -92,26 +92,17 @@ class Home extends React.Component {
 
   getCurrentDate = () => {
     const date = new Date();
-    const DayOfWeek = [
-      "일요일",
-      "월요일",
-      "화요일",
-      "수요일",
-      "목요일",
-      "금요일",
-      "토요일"
-    ];
+    const year = date.getFullYear() + "";
     const currentDate =
-      date.getFullYear() +
+      year.substr(2, 2) +
       "년 " +
       (date.getMonth() + 1) +
       "월 " +
       date.getDate() +
       "일 " +
-      DayOfWeek[date.getDay()] +
-      " " +
       date.getHours() +
-      "시";
+      ":" +
+      date.getMinutes();
 
     return currentDate;
   };
@@ -390,6 +381,7 @@ class Home extends React.Component {
                   onKeyPress={e => {
                     if (e.key === "Enter") {
                       this.inputReply(e.target.value);
+                      e.target.value = "";
                     }
                   }}
                 />
@@ -441,7 +433,7 @@ const ReplyContainer = styled.div`
 `;
 
 const ReplyDiv = styled.div`
-  width: 66%;
+  width: 80%;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
@@ -530,7 +522,7 @@ const UpperContentDiv = styled.div`
 
 const ContentsDiv = styled.div`
   width: 97%;
-  height: 64%;
+  height: 55%;
   padding: 5px;
   display: flex;
   justify-content: center;
@@ -538,8 +530,8 @@ const ContentsDiv = styled.div`
 `;
 
 const DateDiv = styled.div`
-  width: 100%;
-  height: 15%;
+  width: 97%;
+  height: 26%;
   display: flex;
   justify-content: flex-end;
   align-items: center;
@@ -585,7 +577,7 @@ const StyledButton = styled.button`
 `;
 
 const ProfileImgDiv = styled.div`
-  width: 34%;
+  width: 20%;
   height: 200px;
   display: flex;
   justify-content: center;
@@ -606,15 +598,15 @@ const ProfileImg = styled.img`
   ${props => {
     if (props.size === "small") {
       return css`
-        height: 48px;
-        width: 48px;
+        height: 36px;
+        width: 36px;
       `;
     }
   }}
 `;
 
 const ProfileInfoDiv = styled.div`
-  width: 66%;
+  width: 80%;
   height: 200px;
   margin-left: 30px;
   display: flex;
@@ -672,8 +664,8 @@ const Span = styled.div`
       `;
     } else if (props.size === "reply") {
       return css`
-        font-weight: 400;
-        font-size: 14px;
+        color: gray;
+        font-size: 12px;
       `;
     } else if (props.size === "replyDate") {
       return css`
