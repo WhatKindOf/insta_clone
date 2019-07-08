@@ -190,7 +190,7 @@ class Home extends React.Component {
       .then(response => {
         if (response.data.code === undefined) {
           this.closeDialog();
-          this.getReply(this.state.contentID);
+          this.getReply(this.state.contentID, this.state.contentEmail);
         }
       })
       .catch(err => console.log("err : " + err));
@@ -201,6 +201,7 @@ class Home extends React.Component {
     const data = {
       contentID: this.state.contentID,
       contentEmail: this.state.contentEmail,
+      replyID: this.props.account.email,
       replyNickname: this.state.replyNickname,
       replyImg: this.state.replyImg,
       replyContent: this.state.replyContent,

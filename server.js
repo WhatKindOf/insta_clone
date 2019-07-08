@@ -74,10 +74,11 @@ app.post("/api/deleteUser", (req, res) => {
 
 app.post("/api/deleteReply", (req, res) => {
   let sql =
-    "DELETE FROM REPLY WHERE contentID = ? and contentEmail = ? and replyNickname = ? and replyImg = ? and replyContent = ? and replyDate = ?";
+    "DELETE FROM REPLY WHERE contentID = ? and contentEmail = ? and replyID = ? and replyNickname = ? and replyImg = ? and replyContent = ? and replyDate = ?";
 
   let contentID = req.body.contentID;
   let contentEmail = req.body.contentEmail;
+  let replyID = req.body.replyID;
   let replyNickname = req.body.replyNickname;
   let replyImg = req.body.replyImg;
   let replyContent = req.body.replyContent;
@@ -85,6 +86,7 @@ app.post("/api/deleteReply", (req, res) => {
   let params = [
     contentID,
     contentEmail,
+    replyID,
     replyNickname,
     replyImg,
     replyContent,
