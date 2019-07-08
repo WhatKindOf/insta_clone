@@ -358,6 +358,7 @@ class Appbar extends React.Component {
                 onKeyPress={e => {
                   if (e.key === "Enter") {
                     this.search(e.target.value);
+                    e.target.value = "";
                   }
                 }}
               />
