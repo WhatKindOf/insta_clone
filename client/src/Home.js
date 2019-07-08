@@ -193,12 +193,9 @@ class Home extends React.Component {
       contentID: this.state.contentID,
       contentEmail: this.state.contentEmail,
       replyID: this.props.account.email,
-      replyNickname: this.state.replyNickname,
-      replyImg: this.state.replyImg,
       replyContent: this.state.replyContent,
       replyDate: this.state.replyDate
     };
-
     return post(url, data);
   };
 
